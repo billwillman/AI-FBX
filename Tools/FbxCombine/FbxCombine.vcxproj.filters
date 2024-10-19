@@ -13,10 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\Include">
+      <UniqueIdentifier>{ac123ec9-4502-478c-9250-5cf8ec6a8e9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Source">
+      <UniqueIdentifier>{75b61c38-c926-4252-bd61-56f5699411bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FbxCombine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Source\FBXLoader.cpp">
+      <Filter>源文件\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\FBXLoader.h">
+      <Filter>头文件\Include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

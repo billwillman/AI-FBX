@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include "Include/FBXLoader.h"
 
 int main()
 {
