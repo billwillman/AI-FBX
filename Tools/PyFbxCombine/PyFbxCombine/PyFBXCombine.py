@@ -28,6 +28,11 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
     currentNode = FbxNode.Create(scene, meshName)
 
     mesh = FbxMesh.Create(scene, meshName)
+
+    ## 创建顶点
+    vertexNum = len(vertexs)
+    ## 创建索引
+
     currentNode.AddNodeAttribute(mesh)
 
     rootNode.AddChild(currentNode)
