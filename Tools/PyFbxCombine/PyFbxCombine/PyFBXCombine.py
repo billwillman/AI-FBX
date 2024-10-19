@@ -1,5 +1,6 @@
 import numpy as np
 from objloader import Obj
+import FbxCommon
 
 def BuildFBXData(objFileName):
     model = Obj.open(objFileName)
