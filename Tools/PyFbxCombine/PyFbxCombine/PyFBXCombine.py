@@ -31,6 +31,7 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
 
     ## 创建顶点
     vertexNum = len(vertexs)
+    mesh.InitControlPoints(vertexNum)
     ## 创建索引
 
     currentNode.AddNodeAttribute(mesh)
