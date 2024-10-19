@@ -22,7 +22,7 @@ def GetTestSkeletePath():
     ret = os.path.abspath(ret)
     return ret
 
-def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName):
+def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName = "out.fbx"):
     model = Obj.open(objFileName)
     ## 位置数据
     vertexs = np.array(model.vert)
@@ -38,7 +38,8 @@ def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName):
     boneDatas = np.load(skeleteFileName)
     ## 初始化FBX环境
     manager, scene = FbxCommon.InitializeSdkObjects()
-    ##
+    ## 导出
+    FbxCommon.SaveScene(manager, scene, outFileName)
     return
 
 def Main():
