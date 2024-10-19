@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from objloader import Obj
+from fbx import *
 import FbxCommon
 
 def GetAbsoluteRootPath():
@@ -22,6 +23,16 @@ def GetTestSkeletePath():
     ret = os.path.abspath(ret)
     return ret
 
+def CreateMesh(scene, meshName, vertexs, normals, texcoords):
+    rootNode = scene.GetRootNode()
+    currentNode = FbxNode.Create(scene, meshName)
+
+    mesh = FbxMesh.Create(scene, meshName)
+    currentNode.AddNodeAttribute(mesh)
+
+    rootNode.AddChild(currentNode)
+    return
+
 def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName = "out.fbx"):
     model = Obj.open(objFileName)
     ## 位置数据
@@ -38,9 +49,10 @@ def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName
     boneDatas = np.load(skeleteFileName)
     ## 初始化FBX环境
     manager, scene = FbxCommon.InitializeSdkObjects()
+    # 创建Mesh
     ## 创建Character
-    charIndex = scene.CreateCharacter("Character")
-    char = scene.GetCharacter(charIndex)
+    #charIndex = scene.CreateCharacter("Character")
+    #char = scene.GetCharacter(charIndex)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
