@@ -12,6 +12,9 @@ def BuildFBXData(objFileName):
     texcoords = np.array(model.faces)
     ## 三角面索引列表
     faces = np.array(model.faces)
+    ## 初始化FBX环境
+    manager, scene = FbxCommon.InitializeSdkObjects()
+    ##
     return
 
 def Main():
