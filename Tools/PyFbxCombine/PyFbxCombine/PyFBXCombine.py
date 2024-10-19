@@ -23,7 +23,7 @@ def GetTestSkeletePath():
     ret = os.path.abspath(ret)
     return ret
 
-def CreateMesh(scene, meshName, vertexs, normals, texcoords):
+def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
     rootNode = scene.GetRootNode()
     currentNode = FbxNode.Create(scene, meshName)
 
@@ -50,6 +50,7 @@ def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName
     ## 初始化FBX环境
     manager, scene = FbxCommon.InitializeSdkObjects()
     # 创建Mesh
+    CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
     ## 创建Character
     #charIndex = scene.CreateCharacter("Character")
     #char = scene.GetCharacter(charIndex)
