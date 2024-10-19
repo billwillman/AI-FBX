@@ -12,7 +12,17 @@ def GetTestObjFilePath():
     ret = os.path.abspath(ret)
     return ret
 
-def BuildFBXData(objFileName):
+def GetTestVertexBoneDataPath():
+    ret = GetAbsoluteRootPath() + "/../../../res2/save_obj/xudong_mesh.npy"
+    ret = os.path.abspath(ret)
+    return ret
+
+def GetTestSkeletePath():
+    ret = GetAbsoluteRootPath() + "/../../../res2/save_obj/mesh_parents.npy"
+    ret = os.path.abspath(ret)
+    return ret
+
+def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName):
     model = Obj.open(objFileName)
     ## 位置数据
     vertexs = np.array(model.vert)
@@ -22,14 +32,17 @@ def BuildFBXData(objFileName):
     texcoords = np.array(model.text)
     ## 三角面索引列表
     faces = np.array(model.face)
+    ## vertex骨骼信息
+    vertexBoneDatas = np.load(vertBoneDataFileName)
+    ## 骨骼信息
+    boneDatas = np.load(skeleteFileName)
     ## 初始化FBX环境
     manager, scene = FbxCommon.InitializeSdkObjects()
     ##
     return
 
 def Main():
-    objFileName = GetTestObjFilePath()
-    BuildFBXData(objFileName)
+    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestSkeletePath())
     return
 
 ##################################### 调用入口 ###################################
