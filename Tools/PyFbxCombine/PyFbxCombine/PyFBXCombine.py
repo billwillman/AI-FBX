@@ -30,7 +30,7 @@ def GetOrCreateLayerFromMesh(mesh: FbxMesh, layerIndex: int = 0):
             mesh.CreateLayer()
     return mesh.GetLayer(layerIndex)
 
-def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
+def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode = scene.GetRootNode()
     currentNode = FbxNode.Create(scene, meshName)
 
