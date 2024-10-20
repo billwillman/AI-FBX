@@ -54,8 +54,8 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         mesh.AddPolygon(face3[faceSubIdx] - 1)
         mesh.EndPolygon()
     layerIndex = 0
-    ## 法线
     faceSubIdx += 1
+    ## 法线
     normalNum = len(normals)
     if normalNum > 0:
         normalElement: FbxLayerElementNormal = FbxLayerElementNormal.Create(mesh, "normal")
