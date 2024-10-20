@@ -53,34 +53,23 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         mesh.AddPolygon(face2[faceSubIdx] - 1)
         mesh.AddPolygon(face3[faceSubIdx] - 1)
         mesh.EndPolygon()
+    layerIndex = 0
     ## 法线
     faceSubIdx += 1
-    if len(normals) > 0:
+    normalNum = len(normals)
+    if normalNum > 0:
+        normalElement: FbxLayerElementNormal = FbxLayerElementNormal.Create(mesh, "normal")
+        normalElement.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
+        normalElement.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect) # eDirect直接使用VertexIndex，只要填充数据即可， eIndexToDirect还需要填充Normal Index
+        arr = normalElement.GetDirectArray()
+        arr.Resize(normalNum)
+        for i in range(0, normalNum, 1):
+            arr.SetAt(i, FbxVector4(normals[i][0], normals[i][1], normals[i][2], 1.0))
+        mesh.CreateLayer()
+        layer: FbxLayer = mesh.GetLayer(layerIndex)
+        layer.SetNormals(normalElement)
+        layerIndex += 1
         faceSubIdx += 1
-    ## UV（也有可能有多个，这个暂时只支持1个）
-    if False:
-        uvNum = len(texcoords)
-        if uvNum > 0:
-            uv_layer = mesh.CreateElementUV("_MainTex")
-            uv_array = uv_layer.GetDirectArray()
-            uv_array.Resize(uvNum)
-            for i in range(0, uvNum, 1):
-                uv_array.SetAt(i, FbxVector2(texcoords[i][0], texcoords[i][1]))
-            uv_index_array = uv_layer.GetIndexArray()
-            uv_index_array.Resize(faceNum)
-            idx = 0
-            while idx < faceNum:
-                face1 = faces[idx]
-                uv_index_array.SetAt(idx, face1[faceSubIdx] - 1)
-                idx += 1
-                face2 = faces[idx]
-                uv_index_array.SetAt(idx, face2[faceSubIdx] - 1)
-                idx += 1
-                face3 = faces[idx]
-                uv_index_array.SetAt(idx, face3[faceSubIdx] - 1)
-                idx += 1
-
-            mesh.SetLayer(0, uv_layer)
 
     mesh.BuildMeshEdgeArray() # 生成边界数组
     currentNode.AddNodeAttribute(mesh)
