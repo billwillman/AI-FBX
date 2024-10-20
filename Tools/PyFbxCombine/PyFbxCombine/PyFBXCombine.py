@@ -36,9 +36,13 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         vert = FbxVector4(vertexs[idx][0], vertexs[idx][1], vertexs[idx][2])
         mesh.SetControlPointAt(vert, idx)
     ## 法线
-    normalNum = 0
-    if normals != None:
-        normalNum = len(normals)
+    normalNum = len(normals)
+    if normalNum > 0:
+        '''
+        normalElements: FbxLayerElementNormal = mesh.CreateElementNormal()
+        normalElements.SetMappingMode(FbxLayerElementNormal.EMappingMode.eByControlPoint)
+        normalElements.SetReferenceMode(FbxLayerElementNormal.EReferenceMode.eDirect)
+        '''
         mesh.InitNormals(normalNum)
         for idx in range(0, normalNum, 1):
             normal = FbxVector4(normals[idx][0], normals[idx][1], normals[idx][2])
@@ -64,7 +68,6 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         # normal索引
         if normalNum > 0:
             currIdx += 1
-            continue
         # texcoord索引
     ##
 
