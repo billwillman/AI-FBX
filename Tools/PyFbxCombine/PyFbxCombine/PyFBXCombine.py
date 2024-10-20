@@ -70,6 +70,7 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         layer.SetNormals(normalElement)
         layerIndex += 1
         faceSubIdx += 1
+    ## UV
 
     mesh.BuildMeshEdgeArray() # 生成边界数组
     currentNode.AddNodeAttribute(mesh)
