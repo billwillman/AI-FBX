@@ -71,6 +71,20 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         layerIndex += 1
         faceSubIdx += 1
     ## UV
+    uvNum = len(texcoords)
+    if uvNum > 0:
+        uvElement: FbxLayerElementUV = mesh.CreateElementUV("Diffuse")
+        uvElement.SetMappingMode(FbxLayerElement.EMappingMode.eByControlPoint)
+        uvElement.SetReferenceMode(FbxLayerElement.EReferenceMode.eDirect)
+        arr = uvElement.GetDirectArray()
+        arr.Resize(uvNum)
+        for i in range(0, uvNum, 1):
+            arr.SetAt(i, FbxVector2(texcoords[i][0], texcoords[i][1]))
+        mesh.CreateLayer()
+        layer: FbxLayer = mesh.GetLayer(layerIndex)
+        layer.SetUVs(uvElement)
+        layerIndex += 1
+        faceSubIdx += 1
 
     mesh.BuildMeshEdgeArray() # 生成边界数组
     currentNode.AddNodeAttribute(mesh)
