@@ -95,9 +95,6 @@ def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName
     manager, scene = FbxCommon.InitializeSdkObjects()
     # 创建Mesh
     CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
-    ## 创建Character
-    #charIndex = scene.CreateCharacter("Character")
-    #char = scene.GetCharacter(charIndex)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
