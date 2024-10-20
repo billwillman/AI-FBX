@@ -53,9 +53,10 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         idx += 1
         # 顶点索引
         mesh.BeginPolygon()
-        mesh.AddPolygon(face1[0])
-        mesh.AddPolygon(face2[0])
-        mesh.AddPolygon(face3[0])
+        ## 从1开始的，转成从0开始
+        mesh.AddPolygon(face1[0] - 1)
+        mesh.AddPolygon(face2[0] - 1)
+        mesh.AddPolygon(face3[0] - 1)
         mesh.EndPolygon()
         # normal索引
         # texcoord索引
