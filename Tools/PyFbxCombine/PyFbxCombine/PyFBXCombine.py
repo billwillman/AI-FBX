@@ -23,6 +23,13 @@ def GetTestSkeletePath():
     ret = os.path.abspath(ret)
     return ret
 
+def GetOrCreateLayerFromMesh(mesh: FbxMesh, layerIndex: int = 0):
+    layerCount = mesh.GetLayerCount()
+    if layerIndex >= layerCount:
+        for i in range(layerCount, layerIndex + 1, 1):
+            mesh.CreateLayer()
+    return mesh.GetLayer(layerIndex)
+
 def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
     rootNode = scene.GetRootNode()
     currentNode = FbxNode.Create(scene, meshName)
@@ -53,7 +60,6 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         mesh.AddPolygon(face2[faceSubIdx] - 1)
         mesh.AddPolygon(face3[faceSubIdx] - 1)
         mesh.EndPolygon()
-    layerIndex = 0
     faceSubIdx += 1
     ## 法线
     normalNum = len(normals)
@@ -65,10 +71,8 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         arr.Resize(normalNum)
         for i in range(0, normalNum, 1):
             arr.SetAt(i, FbxVector4(normals[i][0], normals[i][1], normals[i][2], 1.0))
-        mesh.CreateLayer()
-        layer: FbxLayer = mesh.GetLayer(layerIndex)
+        layer: FbxLayer = GetOrCreateLayerFromMesh(mesh)
         layer.SetNormals(normalElement)
-        layerIndex += 1
         faceSubIdx += 1
     ## UV
     uvNum = len(texcoords)
@@ -80,10 +84,8 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         arr.Resize(uvNum)
         for i in range(0, uvNum, 1):
             arr.SetAt(i, FbxVector2(texcoords[i][0], texcoords[i][1]))
-        mesh.CreateLayer()
-        layer: FbxLayer = mesh.GetLayer(layerIndex)
+        layer: FbxLayer = GetOrCreateLayerFromMesh(mesh)
         layer.SetUVs(uvElement)
-        layerIndex += 1
         faceSubIdx += 1
 
     mesh.BuildMeshEdgeArray() # 生成边界数组
