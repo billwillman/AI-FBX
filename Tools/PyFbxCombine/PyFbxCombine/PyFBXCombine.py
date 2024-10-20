@@ -92,7 +92,7 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
     currentNode.AddNodeAttribute(mesh)
 
     rootNode.AddChild(currentNode)
-    return
+    return mesh
 
 def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName = "out.fbx"):
     model = Obj.open(objFileName)
