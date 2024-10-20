@@ -36,11 +36,13 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         vert = FbxVector4(vertexs[idx][0], vertexs[idx][1], vertexs[idx][2])
         mesh.SetControlPointAt(vert, idx)
     ## 法线
-    normalNum = len(normals)
-    mesh.InitNormals(normalNum)
-    for idx in range(0, normalNum, 1):
-        normal = FbxVector4(normals[idx][0], normals[idx][1], normals[idx][2])
-        mesh.SetControlPointNormalAt(normal, idx)
+    normalNum = 0
+    if normals != None:
+        normalNum = len(normals)
+        mesh.InitNormals(normalNum)
+        for idx in range(0, normalNum, 1):
+            normal = FbxVector4(normals[idx][0], normals[idx][1], normals[idx][2])
+            mesh.SetControlPointNormalAt(normal, idx)
     ## subMesh(IndexBuffer), 有可能有多个subMesh的
     faceNum = len(faces)
     idx = 0
@@ -59,6 +61,8 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         mesh.AddPolygon(face3[0] - 1)
         mesh.EndPolygon()
         # normal索引
+        if normalNum > 0:
+            continue
         # texcoord索引
     ##
 
