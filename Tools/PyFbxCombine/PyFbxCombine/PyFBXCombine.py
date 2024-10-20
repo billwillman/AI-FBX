@@ -29,10 +29,20 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
 
     mesh = FbxMesh.Create(scene, meshName)
 
-    ## 创建顶点
+    ## 顶点
     vertexNum = len(vertexs)
     mesh.InitControlPoints(vertexNum)
-    ## 创建索引
+    for idx in range(0, vertexNum, 1):
+        vert = FbxVector4(vertexs[idx][0], vertexs[idx][1], vertexs[idx][2])
+        mesh.SetControlPointAt(vert, idx)
+    ## 法线
+    normalNum = len(normals)
+    mesh.InitNormals(normalNum)
+    for idx in range(0, normalNum, 1):
+        normal = FbxVector4(normals[idx][0], normals[idx][1], normals[idx][2])
+        mesh.SetControlPointNormalAt(normal, idx)
+    ## subMesh(IndexBuffer), 有可能有多个subMesh的
+    ##
 
     currentNode.AddNodeAttribute(mesh)
 
