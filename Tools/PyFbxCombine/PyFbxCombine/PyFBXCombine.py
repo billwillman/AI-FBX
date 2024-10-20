@@ -56,12 +56,14 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces):
         # 顶点索引
         mesh.BeginPolygon()
         ## 从1开始的，转成从0开始
-        mesh.AddPolygon(face1[0] - 1)
-        mesh.AddPolygon(face2[0] - 1)
-        mesh.AddPolygon(face3[0] - 1)
+        currIdx = 0
+        mesh.AddPolygon(face1[currIdx] - 1)
+        mesh.AddPolygon(face2[currIdx] - 1)
+        mesh.AddPolygon(face3[currIdx] - 1)
         mesh.EndPolygon()
         # normal索引
         if normalNum > 0:
+            currIdx += 1
             continue
         # texcoord索引
     ##
