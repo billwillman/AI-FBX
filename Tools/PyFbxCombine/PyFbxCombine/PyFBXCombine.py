@@ -94,6 +94,9 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode.AddChild(currentNode)
     return mesh
 
+def AddSkinnedDataToMesh(mesh, vertexBoneDatas, boneDatas):
+    return mesh
+
 def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName = "out.fbx"):
     model = Obj.open(objFileName)
     ## 位置数据
@@ -113,6 +116,7 @@ def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName
     # 创建Mesh
     mesh = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
     # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
+    mesh = AddSkinnedDataToMesh(mesh, vertexBoneDatas, boneDatas)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
