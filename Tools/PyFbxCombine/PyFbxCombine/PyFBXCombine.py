@@ -111,7 +111,8 @@ def BuildFBXData(objFileName, vertBoneDataFileName, skeleteFileName, outFileName
     ## 初始化FBX环境
     manager, scene = FbxCommon.InitializeSdkObjects()
     # 创建Mesh
-    CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
+    mesh = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
+    # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
