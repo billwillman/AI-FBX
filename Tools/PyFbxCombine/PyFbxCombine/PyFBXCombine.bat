@@ -1,0 +1,2 @@
+Python PyFBXCombine.py
+pause
