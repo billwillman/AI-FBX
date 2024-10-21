@@ -3,7 +3,7 @@
 2.设置环境变量Path: 
   示例：
   C:\Users\XXXX\AppData\Local\Programs\Python\Python310
-  C:\Users\bestzeng\AppData\Local\Programs\Python\Python310\Scripts
+  C:\Users\XXXX\AppData\Local\Programs\Python\Python310\Scripts
 3.安装Python依赖库：
   PyInstall.bat
 
