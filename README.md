@@ -10,3 +10,18 @@
 【测试环境是否正常】
 双击：AI-FBX\Tools\PyFbxCombine\PyFbxCombine\PyFBXCombine.bat
 生成：out.fbx 说明环境正常。
+
+【待办1】
+完成Unity的SkinnedMesh流程部分，子步骤拆分：
+1.完成初步流程 Vertex Data的BoneIndex, BoneWeight, BindPoseMatrix。
+2.完成初步流程 骨架信息Bone的FBX写入。
+3.最终：让FBX导入Unity可识别为SkinnedMesh
+
+【待办2】
+写入生成动画到FBX部分
+
+【待办3】
+代码结构调整，需要思考不同格式下输入数据FBX生成正确，例如：
+1. 多Material的SubMesh情况。
+2. 多UV，或者无UV以及normal，切线，副法线有无情况。
+
