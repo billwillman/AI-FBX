@@ -100,9 +100,42 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     return mesh
 
 def AddSkinnedDataToMesh(mesh, vertexBoneDatas, boneDatas, boneLinkDatas):
+    ## 骨骼KEY（字符串）和位置建立关系
+    boneNum = len(boneDatas)
+    if boneNum <= 0:
+        return
+    exportBoneMap = {} ## 骨骼名对应位置
+    for i in range(0, boneNum, 1):
+        bonePos = boneDatas[i]
+        exportBoneMap[str(i)] = {
+            "position": FbxVector4(bonePos[0], bonePos[1], bonePos[2]),
+            "childs": [],
+            "name": str(i) ## 骨骼名称
+        }
+    ##### 拓扑关系
+    boneLinkNum = len(boneLinkDatas)
+    if boneLinkNum <= 0 or boneLinkNum != boneNum:
+        return
+    for i in range(0, boneLinkNum, 1):
+        parentBoneIndex = boneLinkDatas[i]
+        if parentBoneIndex >= 0:
+            boneName = str(i)
+            parentBoneName = str(parentBoneIndex)
+            bone = exportBoneMap[boneName]
+            parentBone = exportBoneMap[parentBoneName]
+            bone["parent"] = parentBone
+            parentBone["childs"].append(bone)
+
+    removeList = []
+    for key, value in exportBoneMap.items():
+        if "parent" in value:
+            removeList.append(key)
+    for key in removeList:
+        exportBoneMap.pop(key, None)
+    ##
     return mesh
 
-def BuildFBXData(objFileName, vertBoneDataFileName, skeleteLinkFileName, boneDataFileName, outFileName = "out.fbx"):
+def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLinkFileName, outFileName = "out.fbx"):
     model = Obj.open(objFileName)
     ## 位置数据
     vertexs = np.array(model.vert)
