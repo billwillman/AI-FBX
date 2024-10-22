@@ -113,7 +113,8 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     else:
         parentPosition = node["parent"]["position"]
         position = node["position"]
-        fbxNode.LclTranslation.Set(position - parentPosition)
+        offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
+        fbxNode.LclTranslation.Set(offsetPos)
     return fbxNode
 
 ## 创建子FBX节点
