@@ -107,7 +107,13 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
     fbxNode: FbxNode = FbxNode.Create(fbxManager, boneName)
     fbxNode.SetNodeAttribute(skel)
-    fbxNode.LclTranslation.Set(node["position"])
+    isRoot = not ("parent" in node)
+    if isRoot:
+        fbxNode.LclTranslation.Set(FbxDouble3(0, 0, 0))
+    else:
+        parentPosition = node["parent"]["position"]
+        position = node["position"]
+        fbxNode.LclTranslation.Set(position - parentPosition)
     return fbxNode
 
 ## 创建子FBX节点
@@ -156,6 +162,8 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
         rootNode = _CreateFbxBoneNode(fbxManager, value)
         _CreateChildFbxBoneNode(fbxManager, rootNode, value)
         scene.GetRootNode().GetChild(0).AddChild(rootNode)
+    ## 顶点蒙皮
+    ##
     return mesh
 
 def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLinkFileName, outFileName = "out.fbx"):
