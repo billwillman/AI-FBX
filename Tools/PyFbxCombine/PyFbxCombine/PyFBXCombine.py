@@ -101,8 +101,21 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode.AddChild(currentNode)
     return mesh
 
+def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
+    boneName = node["name"]
+    skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, boneName)
+    skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
+    fbxNode: FbxNode = FbxNode.Create(fbxManager, boneName)
+    fbxNode.SetNodeAttribute(skel)
+    fbxNode.LclTranslation.Set(node["position"])
+    return fbxNode
+
 ## 创建子FBX节点
-def _CreateChildFbxBoneNode(targetNode: FbxNode):
+def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
+    for child in targetNode["childs"]:
+        childFbxNode: FbxNode = _CreateFbxBoneNode(fbxManager, child)
+        targetFbxNode.AddChild(childFbxNode)
+        _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
     return
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas):
@@ -140,13 +153,8 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
         exportBoneMap.pop(key, None)
     ## 生成FbxSkeleton
     for key, value in exportBoneMap.items():
-        rootName = value["name"]
-        rootSkel: FbxSkeleton = FbxSkeleton.Create(fbxManager, rootName)
-        rootSkel.SetSkeletonType(FbxSkeleton.EType.eRoot)
-        rootNode: FbxNode = FbxNode.Create(fbxManager, rootName)
-        rootNode.SetNodeAttribute(rootSkel)
-        rootNode.LclTranslation.Set(value["position"])
-        _CreateChildFbxBoneNode(rootNode)
+        rootNode = _CreateFbxBoneNode(fbxManager, value)
+        _CreateChildFbxBoneNode(fbxManager, rootNode, value)
         scene.GetRootNode().GetChild(0).AddChild(rootNode)
     return mesh
 
