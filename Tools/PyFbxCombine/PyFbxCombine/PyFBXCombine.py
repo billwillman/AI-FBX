@@ -103,11 +103,14 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
 
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
+    isRoot = not ("parent" in node)
     skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, boneName)
-    skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
+    if isRoot:
+        skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
+    else:
+        skel.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
     fbxNode: FbxNode = FbxNode.Create(fbxManager, boneName)
     fbxNode.SetNodeAttribute(skel)
-    isRoot = not ("parent" in node)
     if isRoot:
         fbxNode.LclTranslation.Set(FbxDouble3(0, 0, 0))
     else:
