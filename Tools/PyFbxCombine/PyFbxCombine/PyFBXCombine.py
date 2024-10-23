@@ -132,7 +132,7 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
 
 def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode):
     fbxNode = rootNode["FbxNode"]
-    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_Root")
+    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + rootNode["name"])
     clusterRoot.SetLink(fbxNode)
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
     return
