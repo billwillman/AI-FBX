@@ -131,10 +131,28 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
     return
 
 def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode):
-    fbxNode = rootNode["FbxNode"]
+    rootFbxNode = rootNode["FbxNode"]
     clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + rootNode["name"])
-    clusterRoot.SetLink(fbxNode)
+    clusterRoot.SetLink(rootFbxNode)
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
+
+    cluster_dict = {}
+    for i in range(0, len(vertexBoneDatas), 1):
+        boneWeightDatas = vertexBoneDatas[i]
+        key = str(i)
+        cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
+        fbxNode: FbxNode = scene.FindNodeByName(key)
+        cluster_dict[key].SetLink(fbxNode)
+        cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
+        for j in range(0, len(boneWeightDatas), 1):
+            if abs(boneWeightDatas[j]) >= 0.000001:
+                cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
+
+    # Matrix
+    mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(rootFbxNode)
+    clusterRoot.SetTransformMatrix(mat)
+    for key in cluster_dict:
+        cluster_dict[key].SetTransformMatrix(mat)
     return
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas):
@@ -178,7 +196,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
         _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value)
         scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     ## 顶点蒙皮
-    _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode)
+    #_CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode)
     ##
     return mesh
 
