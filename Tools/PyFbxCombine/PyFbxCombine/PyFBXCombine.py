@@ -118,6 +118,7 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
         position: FbxDouble3 = node["position"]
         offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
         fbxNode.LclTranslation.Set(offsetPos)
+    node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
     return fbxNode
 
@@ -127,6 +128,13 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
         childFbxNode: FbxNode = _CreateFbxBoneNode(fbxManager, child)
         targetFbxNode.AddChild(childFbxNode)
         _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
+    return
+
+def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode):
+    fbxNode = rootNode["FbxNode"]
+    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_Root")
+    clusterRoot.SetLink(fbxNode)
+    clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
     return
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas):
@@ -140,7 +148,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
         exportBoneMap[str(i)] = {
             "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]),
             "childs": [],
-            "name": str(i) ## 骨骼名称
+            "name": str(i), ## 骨骼名称
         }
     ##### 拓扑关系
     boneLinkNum = len(boneLinkDatas)
@@ -168,6 +176,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
         _CreateChildFbxBoneNode(fbxManager, rootNode, value)
         scene.GetRootNode().GetChild(0).AddChild(rootNode)
     ## 顶点蒙皮
+    _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode)
     ##
     return mesh
 
