@@ -171,10 +171,12 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
     for key in removeList:
         exportBoneMap.pop(key, None)
     ## 生成FbxSkeleton
+    rootNode = None
     for key, value in exportBoneMap.items():
-        rootNode = _CreateFbxBoneNode(fbxManager, value)
-        _CreateChildFbxBoneNode(fbxManager, rootNode, value)
-        scene.GetRootNode().GetChild(0).AddChild(rootNode)
+        rootNode = value
+        fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
+        _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value)
+        scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode)
     ##
