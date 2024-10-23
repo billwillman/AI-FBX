@@ -130,9 +130,9 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
         _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
     return
 
-def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode):
-    rootFbxNode = rootNode["FbxNode"]
-    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + rootNode["name"])
+def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, skelRootNode):
+    rootFbxNode = skelRootNode["FbxNode"]
+    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + skelRootNode["name"])
     clusterRoot.SetLink(rootFbxNode)
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
 
@@ -189,14 +189,14 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
     for key in removeList:
         exportBoneMap.pop(key, None)
     ## 生成FbxSkeleton
-    rootNode = None
+    skelRootNode = None
     for key, value in exportBoneMap.items():
-        rootNode = value
+        skelRootNode = value
         fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
         _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value)
         scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     ## 顶点蒙皮
-    #_CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, rootNode)
+    #_CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, skelRootNode)
     ##
     return mesh
 
