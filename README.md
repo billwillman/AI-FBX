@@ -13,7 +13,7 @@
 
 【待办1】
 完成Unity的SkinnedMesh流程部分，子步骤拆分：
-1.完成初步流程 Vertex Data的BoneIndex, BoneWeight, BindPoseMatrix。
+1.完成初步流程 Vertex Data的BoneIndex, BoneWeight等。
 2.完成初步流程 骨架信息Bone的FBX写入。
 3.最终：让FBX导入Unity可识别为SkinnedMesh
 
