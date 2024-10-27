@@ -209,6 +209,12 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
         FbxCommon.LoadScene(manager, scene, objFileName)
         scene.GetRootNode().GetChild(0).GetChild(0).SetName("Character")
         FbxGeometryConverter(manager).Triangulate(scene, True) #保证模型是三角形
+        ## vertex骨骼信息
+        vertexBoneDatas = np.load(vertBoneDataFileName)
+        ## 骨骼关联信息
+        boneLinkDatas = np.load(skeleteLinkFileName)
+        ## 骨骼信息
+        boneDatas = np.load(boneDataFileName)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
