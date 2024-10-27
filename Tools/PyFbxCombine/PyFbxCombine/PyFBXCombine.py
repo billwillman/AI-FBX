@@ -146,9 +146,9 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
         cluster_dict[key].SetLink(fbxNode)
         cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
         for j in range(0, len(boneWeightDatas), 1):
-            #if abs(boneWeightDatas[j]) >= 0.000001:
-            print("vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j]))
-            cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
+            if abs(boneWeightDatas[j]) >= 0.000001:
+                print("vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j]))
+                cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
 
     # Matrix
     mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(meshNode)
