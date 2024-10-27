@@ -200,28 +200,37 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
     ##
     return mesh
 
+global bUseSceneImport
+bUseSceneImport = True
+
 def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLinkFileName, outFileName = "out.fbx"):
-    model = Obj.open(objFileName)
-    ## 位置数据
-    vertexs = np.array(model.vert)
-    ## 法线
-    normals = np.array(model.norm)
-    ## 纹理坐标
-    texcoords = np.array(model.text)
-    ## 三角面索引列表
-    faces = np.array(model.face)
-    ## vertex骨骼信息
-    vertexBoneDatas = np.load(vertBoneDataFileName)
-    ## 骨骼关联信息
-    boneLinkDatas = np.load(skeleteLinkFileName)
-    ## 骨骼信息
-    boneDatas = np.load(boneDataFileName)
-    ## 初始化FBX环境
-    manager, scene = FbxCommon.InitializeSdkObjects()
-    # 创建Mesh
-    mesh = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
-    # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
-    AddSkinnedDataToMesh(manager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas)
+    if bUseSceneImport:
+        manager, scene = FbxCommon.InitializeSdkObjects()
+        FbxCommon.LoadScene(manager, scene, objFileName)
+        scene.GetRootNode().GetChild(0).GetChild(0).SetName("Character")
+        FbxGeometryConverter(manager).Triangulate(scene, True) #保证模型是三角形
+    else:
+        model = Obj.open(objFileName)
+        ## 位置数据
+        vertexs = np.array(model.vert)
+        ## 法线
+        normals = np.array(model.norm)
+        ## 纹理坐标
+        texcoords = np.array(model.text)
+        ## 三角面索引列表
+        faces = np.array(model.face)
+        ## vertex骨骼信息
+        vertexBoneDatas = np.load(vertBoneDataFileName)
+        ## 骨骼关联信息
+        boneLinkDatas = np.load(skeleteLinkFileName)
+        ## 骨骼信息
+        boneDatas = np.load(boneDataFileName)
+        ## 初始化FBX环境
+        manager, scene = FbxCommon.InitializeSdkObjects()
+        # 创建Mesh
+        mesh = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
+        # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
+        AddSkinnedDataToMesh(manager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
