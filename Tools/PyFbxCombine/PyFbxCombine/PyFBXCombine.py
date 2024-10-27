@@ -131,7 +131,7 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
         _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
     return
 
-def _CreateSkin(fbxManager, scene, meshNode, vertexBoneDatas, skelRootNode):
+def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode):
     rootFbxNode = skelRootNode["FbxNode"]
     clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + skelRootNode["name"])
     clusterRoot.SetLink(rootFbxNode)
@@ -150,10 +150,23 @@ def _CreateSkin(fbxManager, scene, meshNode, vertexBoneDatas, skelRootNode):
                 cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
 
     # Matrix
-    mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(rootFbxNode)
+    mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(meshNode)
     clusterRoot.SetTransformMatrix(mat)
     for key in cluster_dict:
         cluster_dict[key].SetTransformMatrix(mat)
+    mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(rootFbxNode)
+    clusterRoot.SetTransformLinkMatrix(mat)
+
+    for key in cluster_dict:
+        mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(scene.FindNodeByName(key))
+        cluster_dict[key].SetTransformLinkMatrix(mat)
+
+    skin = FbxSkin.Create(fbxManager, "")
+    skin.AddCluster(clusterRoot)
+    for key in cluster_dict:
+        skin.AddCluster(cluster_dict[key])
+
+    mesh.AddDeformer(skin)
     return
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas):
@@ -197,7 +210,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
         _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value)
         scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     ## 顶点蒙皮
-    #_CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, skelRootNode)
+    _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ##
     return
 
