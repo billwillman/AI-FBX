@@ -100,7 +100,7 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     currentNode.AddNodeAttribute(mesh)
 
     rootNode.AddChild(currentNode)
-    return mesh
+    return mesh, currentNodes
 
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
@@ -131,7 +131,7 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
         _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
     return
 
-def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, skelRootNode):
+def _CreateSkin(fbxManager, scene, meshNode, vertexBoneDatas, skelRootNode):
     rootFbxNode = skelRootNode["FbxNode"]
     clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + skelRootNode["name"])
     clusterRoot.SetLink(rootFbxNode)
@@ -156,7 +156,7 @@ def _CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, skelRootNode):
         cluster_dict[key].SetTransformMatrix(mat)
     return
 
-def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas):
+def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas):
     ## 骨骼KEY（字符串）和位置建立关系
     boneNum = len(boneDatas)
     if boneNum <= 0:
@@ -199,7 +199,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, vertexBoneDatas, boneDatas, bo
     ## 顶点蒙皮
     #_CreateSkin(fbxManager, scene, mesh, vertexBoneDatas, skelRootNode)
     ##
-    return mesh
+    return
 
 global bUseSceneImport
 bUseSceneImport = True
@@ -229,7 +229,7 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
         ## 骨骼信息
         boneDatas = np.load(boneDataFileName)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
-        AddSkinnedDataToMesh(manager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas)
+        AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
@@ -249,9 +249,9 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
         ## 初始化FBX环境
         manager, scene = FbxCommon.InitializeSdkObjects()
         # 创建Mesh
-        mesh = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
+        mesh, meshNode = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
-        AddSkinnedDataToMesh(manager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas)
+        AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
