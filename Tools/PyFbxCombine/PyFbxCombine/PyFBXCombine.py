@@ -3,6 +3,7 @@ import numpy as np
 from objloader import Obj
 from fbx import *
 import FbxCommon
+from operator import index
 from test.test_importlib.import_.test_fromlist import ReturnValue
 
 
@@ -209,12 +210,26 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
         FbxCommon.LoadScene(manager, scene, objFileName)
         scene.GetRootNode().GetChild(0).GetChild(0).SetName("Character")
         FbxGeometryConverter(manager).Triangulate(scene, True) #保证模型是三角形
+        meshNode: FbxNode = scene.GetRootNode().GetChild(0).GetChild(0)
+        attriNum = meshNode.GetNodeAttributeCount()
+        mesh = None
+        for i in range(attriNum):
+            attribute = meshNode.GetNodeAttributeByIndex(i)
+            attributeType = attribute.GetAttributeType()
+            if attributeType == FbxNodeAttribute.EType.eMesh:
+                mesh = attribute
+                break
+        if mesh == None:
+            print("not found Mesh Attribute")
+            return
         ## vertex骨骼信息
         vertexBoneDatas = np.load(vertBoneDataFileName)
         ## 骨骼关联信息
         boneLinkDatas = np.load(skeleteLinkFileName)
         ## 骨骼信息
         boneDatas = np.load(boneDataFileName)
+        # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
+        AddSkinnedDataToMesh(manager, scene, mesh, vertexBoneDatas, boneDatas, boneLinkDatas)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
