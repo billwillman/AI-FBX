@@ -155,6 +155,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     clusterRoot.SetTransformMatrix(mat)
     for key in cluster_dict:
         cluster_dict[key].SetTransformMatrix(mat)
+
     mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(rootFbxNode)
     clusterRoot.SetTransformLinkMatrix(mat)
 
