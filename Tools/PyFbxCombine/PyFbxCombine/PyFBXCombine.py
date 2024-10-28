@@ -182,6 +182,9 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 f.flush()
                 ########################
 
+        ## 重新生成vertexBoneDatas
+        ########################
+
         for i in range(0, N1, 1):
             boneWeightDatas = vertexBoneDatas[i]
             key = str(i)
