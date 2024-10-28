@@ -140,6 +140,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
 
     cluster_dict = {}
     N1 = len(vertexBoneDatas)
+    VertexNum = None
     VertexBoneMap = {}
     f = open("output.log", "w")
     try:
@@ -147,6 +148,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
             boneWeightDatas = vertexBoneDatas[i]
             key = str(i)
             N2 = len(boneWeightDatas)
+            VertexNum = N2
             for j in range(0, N2, 1):
                 if abs(boneWeightDatas[j]) >= 0.000001:
                     if not j in VertexBoneMap:
@@ -182,12 +184,29 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 ########################
 
         ## 重新生成vertexBoneDatas
+        newVertexBoneDatas = {}
         for vertexIndex in VertexBoneMap:
             boneDatas: list = VertexBoneMap[vertexIndex]
             boneDatasNum = len(boneDatas)
             for idx in range(0, boneDatasNum):
                 boneIndex = boneDatas[idx]["boneIndex"]
                 boneWeight = boneDatas[idx]["boneWeight"]
+                if not boneIndex in newVertexBoneDatas:
+                    newVertexBoneDatas[boneIndex] = {}
+                item = {"vertexIndex": vertexIndex, "boneWeight": boneWeight}
+                newVertexBoneDatas[boneIndex][vertexIndex] = item
+        vertexBoneDatas = []
+        for boneIndex in range(0, N1, 1):
+            lst = []
+            vertexBoneDatas.append(lst)
+            boneDatas = None
+            if boneIndex in newVertexBoneDatas:
+                boneDatas = newVertexBoneDatas[boneIndex]
+            for vertexIndex in range(0, VertexNum):
+                if boneDatas != None and vertexIndex in boneDatas:
+                    lst.append(boneDatas[vertexIndex]["boneWeight"])
+                else:
+                    lst.append(0)
         ########################
 
         for i in range(0, N1, 1):
