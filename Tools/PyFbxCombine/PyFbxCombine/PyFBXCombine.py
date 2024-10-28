@@ -145,18 +145,9 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
         for i in range(0, N1, 1):
             boneWeightDatas = vertexBoneDatas[i]
             key = str(i)
-            cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
-            fbxNode: FbxNode = scene.FindNodeByName(key)
-            cluster_dict[key].SetLink(fbxNode)
-            cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
             N2 = len(boneWeightDatas)
             for j in range(0, N2, 1):
                 if abs(boneWeightDatas[j]) >= 0.000001:
-                    s = "vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
-                    print(s)
-                    f.write(s + "\n")
-                    f.flush()
-                    cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
                     if not j in VertexBoneMap:
                         VertexBoneMap[j] = []
                     item = {"boneName": key, "boneWeight": boneWeightDatas[j]}
@@ -170,6 +161,22 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 print(s)
                 f.write(s + "\n")
                 f.flush()
+
+        for i in range(0, N1, 1):
+            boneWeightDatas = vertexBoneDatas[i]
+            key = str(i)
+            cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
+            fbxNode: FbxNode = scene.FindNodeByName(key)
+            cluster_dict[key].SetLink(fbxNode)
+            cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
+            N2 = len(boneWeightDatas)
+            for j in range(0, N2, 1):
+                if abs(boneWeightDatas[j]) >= 0.000001:
+                    s = "vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
+                    print(s)
+                    f.write(s + "\n")
+                    f.flush()
+                    cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
     finally:
         f.close()
         f = None
