@@ -162,6 +162,9 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 f.write(s + "\n")
                 f.flush()
 
+        ### 处理多余的蒙皮顶点数据，保证不会超过4个骨骼影响
+        ########################
+
         for i in range(0, N1, 1):
             boneWeightDatas = vertexBoneDatas[i]
             key = str(i)
