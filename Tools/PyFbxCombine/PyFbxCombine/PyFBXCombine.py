@@ -161,7 +161,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
         boneDatas = VertexBoneMap[vertexIndex]
         boneDatasNum = len(boneDatas)
         if boneDatasNum > 4:
-            print("[Error] VertexIndex: %d boneDataNum: %d" % (vertexIndex, boneDatasNum))
+            print("[Error] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas)))
 
     # Matrix
     mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(meshNode)
