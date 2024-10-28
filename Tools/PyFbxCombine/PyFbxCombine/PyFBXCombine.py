@@ -154,7 +154,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 if abs(boneWeightDatas[j]) >= 0.000001:
                     s = "vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
                     print(s)
-                    f.write(s)
+                    f.write(s + "\n")
                     f.flush()
                     cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
                     if not j in VertexBoneMap:
@@ -168,7 +168,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
             if boneDatasNum > 4:
                 s = "[Error] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas))
                 print(s)
-                f.write(s)
+                f.write(s + "\n")
                 f.flush()
     finally:
         f.close()
