@@ -166,6 +166,16 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 f.write(s + "\n")
                 f.flush()
                 ### 处理多余的蒙皮顶点数据，保证不会超过4个骨骼影响
+                totalWeight = 0
+                for boneIndex in range(0, boneDatasNum):
+                    totalWeight += boneDatas[boneIndex]["boneWeight"]
+                for boneIndex in range(0, boneDatasNum - 1):
+                    boneDatas[boneIndex]["boneWeight"] = boneDatas[boneIndex]["boneWeight"] + boneDatas[boneIndex]["boneWeight"]/totalWeight * boneDatas[boneDatasNum - 1]["boneWeight"]
+                boneDatas.pop(boneDatasNum - 1) ## 最后一个删除
+                s = "[Fix] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas))
+                print(s)
+                f.write(s + "\n")
+                f.flush()
                 ########################
 
         for i in range(0, N1, 1):
