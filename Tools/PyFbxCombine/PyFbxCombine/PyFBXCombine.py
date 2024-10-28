@@ -5,6 +5,7 @@ from fbx import *
 import FbxCommon
 from operator import index
 from test.test_importlib.import_.test_fromlist import ReturnValue
+from functools import cmp_to_key
 
 
 def GetAbsoluteRootPath():
@@ -154,16 +155,18 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                     VertexBoneMap[j].append(item)
 
         for vertexIndex in VertexBoneMap:
-            boneDatas = VertexBoneMap[vertexIndex]
+            boneDatas: list = VertexBoneMap[vertexIndex]
             boneDatasNum = len(boneDatas)
             if boneDatasNum > 4:
+                ## 排个序
+                for boneIndex in range(0, boneDatasNum):
+                    boneDatas.sort(key=cmp_to_key(lambda a, b: a["boneWeight"] - b["boneWeight"]), reverse=True)
                 s = "[Error] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas))
                 print(s)
                 f.write(s + "\n")
                 f.flush()
-
-        ### 处理多余的蒙皮顶点数据，保证不会超过4个骨骼影响
-        ########################
+                ### 处理多余的蒙皮顶点数据，保证不会超过4个骨骼影响
+                ########################
 
         for i in range(0, N1, 1):
             boneWeightDatas = vertexBoneDatas[i]
