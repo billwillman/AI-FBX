@@ -140,28 +140,39 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     cluster_dict = {}
     N1 = len(vertexBoneDatas)
     VertexBoneMap = {}
-    for i in range(0, N1, 1):
-        boneWeightDatas = vertexBoneDatas[i]
-        key = str(i)
-        cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
-        fbxNode: FbxNode = scene.FindNodeByName(key)
-        cluster_dict[key].SetLink(fbxNode)
-        cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
-        N2 = len(boneWeightDatas)
-        for j in range(0, N2, 1):
-            if abs(boneWeightDatas[j]) >= 0.000001:
-                print("vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j]))
-                cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
-                if not j in VertexBoneMap:
-                    VertexBoneMap[j] = []
-                item = {"boneName": key, "boneWeight": boneWeightDatas[j]}
-                VertexBoneMap[j].append(item)
+    f = open("output.log", "w")
+    try:
+        for i in range(0, N1, 1):
+            boneWeightDatas = vertexBoneDatas[i]
+            key = str(i)
+            cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
+            fbxNode: FbxNode = scene.FindNodeByName(key)
+            cluster_dict[key].SetLink(fbxNode)
+            cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
+            N2 = len(boneWeightDatas)
+            for j in range(0, N2, 1):
+                if abs(boneWeightDatas[j]) >= 0.000001:
+                    s = "vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
+                    print(s)
+                    f.write(s)
+                    f.flush()
+                    cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
+                    if not j in VertexBoneMap:
+                        VertexBoneMap[j] = []
+                    item = {"boneName": key, "boneWeight": boneWeightDatas[j]}
+                    VertexBoneMap[j].append(item)
 
-    for vertexIndex in VertexBoneMap:
-        boneDatas = VertexBoneMap[vertexIndex]
-        boneDatasNum = len(boneDatas)
-        if boneDatasNum > 4:
-            print("[Error] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas)))
+        for vertexIndex in VertexBoneMap:
+            boneDatas = VertexBoneMap[vertexIndex]
+            boneDatasNum = len(boneDatas)
+            if boneDatasNum > 4:
+                s = "[Error] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas))
+                print(s)
+                f.write(s)
+                f.flush()
+    finally:
+        f.close()
+        f = None
 
     # Matrix
     mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(meshNode)
