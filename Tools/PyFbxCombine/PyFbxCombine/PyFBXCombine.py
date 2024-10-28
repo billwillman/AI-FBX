@@ -151,7 +151,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 if abs(boneWeightDatas[j]) >= 0.000001:
                     if not j in VertexBoneMap:
                         VertexBoneMap[j] = []
-                    item = {"boneName": key, "boneWeight": boneWeightDatas[j]}
+                    item = {"boneName": key, "boneIndex":i, "boneWeight": boneWeightDatas[j]}
                     VertexBoneMap[j].append(item)
 
         for vertexIndex in VertexBoneMap:
@@ -159,22 +159,21 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
             boneDatasNum = len(boneDatas)
             if boneDatasNum > 4:
                 ## 排个序
-                for boneIndex in range(0, boneDatasNum):
-                    boneDatas.sort(key=cmp_to_key(lambda a, b: a["boneWeight"] - b["boneWeight"]), reverse=True)
+                boneDatas.sort(key=cmp_to_key(lambda a, b: a["boneWeight"] - b["boneWeight"]), reverse=True)
                 s = "[Error] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas))
                 print(s)
                 f.write(s + "\n")
                 f.flush()
                 ### 处理多余的蒙皮顶点数据，保证不会超过4个骨骼影响
                 totalWeight = 0
-                for boneIndex in range(0, boneDatasNum):
-                    totalWeight += boneDatas[boneIndex]["boneWeight"]
+                for idx in range(0, boneDatasNum):
+                    totalWeight += boneDatas[idx]["boneWeight"]
                 removeWeight = 0
-                for boneIndex in range(4, boneDatasNum):
-                    removeWeight += boneDatas[boneIndex]["boneWeight"]
-                for boneIndex in range(0, boneDatasNum - 1):
-                    boneDatas[boneIndex]["boneWeight"] = boneDatas[boneIndex]["boneWeight"] + boneDatas[boneIndex]["boneWeight"]/totalWeight * removeWeight
-                for boneIndex in range(4, boneDatasNum):
+                for idx in range(4, boneDatasNum):
+                    removeWeight += boneDatas[idx]["boneWeight"]
+                for idx in range(0, 4):
+                    boneDatas[idx]["boneWeight"] = boneDatas[idx]["boneWeight"] + boneDatas[idx]["boneWeight"]/totalWeight * removeWeight
+                for idx in range(4, boneDatasNum):
                     boneDatas.pop(len(boneDatas) - 1) ## 最后一个删除
                 s = "[Fix] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, len(boneDatas), str(boneDatas))
                 print(s)
@@ -183,6 +182,12 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 ########################
 
         ## 重新生成vertexBoneDatas
+        for vertexIndex in VertexBoneMap:
+            boneDatas: list = VertexBoneMap[vertexIndex]
+            boneDatasNum = len(boneDatas)
+            for idx in range(0, boneDatasNum):
+                boneIndex = boneDatas[idx]["boneIndex"]
+                boneWeight = boneDatas[idx]["boneWeight"]
         ########################
 
         for i in range(0, N1, 1):
