@@ -138,17 +138,30 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
 
     cluster_dict = {}
-    for i in range(0, len(vertexBoneDatas), 1):
+    vertexBoneNumMap ={}
+    ErrVertexBoneDataIndex = []
+    N1 = len(vertexBoneDatas)
+    for i in range(0, N1, 1):
         boneWeightDatas = vertexBoneDatas[i]
         key = str(i)
         cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
         fbxNode: FbxNode = scene.FindNodeByName(key)
         cluster_dict[key].SetLink(fbxNode)
         cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
-        for j in range(0, len(boneWeightDatas), 1):
+        N2 = len(boneWeightDatas)
+        for j in range(0, N2, 1):
             if abs(boneWeightDatas[j]) >= 0.000001:
+                if j in vertexBoneNumMap:
+                    vertexBoneNumMap[j] = vertexBoneNumMap[j] + 1
+                    if vertexBoneNumMap[j] > 4:
+                        ErrVertexBoneDataIndex.append(j)
+                else:
+                    vertexBoneNumMap[j] = 1
                 print("vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j]))
                 cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
+    if len(ErrVertexBoneDataIndex) > 0:
+        for i in range(0, len(ErrVertexBoneDataIndex), 1):
+            print("[Error] Vertex boneWeight Count Max 4: vertex(%d) boneWeight num: (%d)" % (ErrVertexBoneDataIndex[i], vertexBoneNumMap[ErrVertexBoneDataIndex[i]]))
 
     # Matrix
     mat = scene.GetAnimationEvaluator().GetNodeGlobalTransform(meshNode)
