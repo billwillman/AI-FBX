@@ -169,10 +169,14 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
                 totalWeight = 0
                 for boneIndex in range(0, boneDatasNum):
                     totalWeight += boneDatas[boneIndex]["boneWeight"]
+                removeWeight = 0
+                for boneIndex in range(4, boneDatasNum):
+                    removeWeight += boneDatas[boneIndex]["boneWeight"]
                 for boneIndex in range(0, boneDatasNum - 1):
-                    boneDatas[boneIndex]["boneWeight"] = boneDatas[boneIndex]["boneWeight"] + boneDatas[boneIndex]["boneWeight"]/totalWeight * boneDatas[boneDatasNum - 1]["boneWeight"]
-                boneDatas.pop(boneDatasNum - 1) ## 最后一个删除
-                s = "[Fix] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, boneDatasNum, str(boneDatas))
+                    boneDatas[boneIndex]["boneWeight"] = boneDatas[boneIndex]["boneWeight"] + boneDatas[boneIndex]["boneWeight"]/totalWeight * removeWeight
+                for boneIndex in range(4, boneDatasNum):
+                    boneDatas.pop(len(boneDatas) - 1) ## 最后一个删除
+                s = "[Fix] VertexIndex: %d boneDataNum: %d === %s" % (vertexIndex, len(boneDatas), str(boneDatas))
                 print(s)
                 f.write(s + "\n")
                 f.flush()
