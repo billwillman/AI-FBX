@@ -388,6 +388,10 @@ def Generate_JsonToNPY(dir, name):
     Generate_Json_ToNPY(dir, name, "mesh")
     return
 
+# 使用obj文件和NPY文件生成FBX
+def Generate_ObjAndNPY_ToFBX(dir, name):
+    return
+
 def Main():
     argv = sys.argv
     if len(argv) >= 4:
