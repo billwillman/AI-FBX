@@ -488,7 +488,7 @@ def Main():
     print("no parameter: run default~!")
     ##print(type(None))
     #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None, GetTestSkeleteLinkPath())
-    Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002")
+    #Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002")
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
