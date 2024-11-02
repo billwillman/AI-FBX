@@ -380,7 +380,7 @@ def Generate_JsonToNPY(dir, name):
     ## 缩放
     print("[Generate] Convert scale to scales...")
     Generate_Json_ToNPY(dir, name, "scales")
-    ## 骨骼关联"
+    ## 骨骼关联
     print("[Generate] Convert boneLink to parents...")
     Generate_Json_ToNPY(dir, name, "parents")
     ## 骨骼顶点的权重
