@@ -252,14 +252,14 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     mesh.AddDeformer(skin)
     return
 
-def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas):
+def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas):
     ## 骨骼KEY（字符串）和位置建立关系
-    boneNum = len(boneDatas)
+    boneNum = len(bonePosDatas)
     if boneNum <= 0:
         return
     exportBoneMap = {} ## 骨骼名对应位置
     for i in range(0, boneNum, 1):
-        bonePos = boneDatas[i]
+        bonePos = bonePosDatas[i]
         exportBoneMap[str(i)] = {
             "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]),
             "childs": [],
@@ -300,7 +300,8 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
 global bUseSceneImport
 bUseSceneImport = True
 
-def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLinkFileName, outFileName = "out.fbx"):
+## obj模型 顶点BoneWeight 骨骼位置 骨骼父子关系 导出文件
+def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, outFileName = "out.fbx"):
     if bUseSceneImport:
         manager, scene = FbxCommon.InitializeSdkObjects()
         FbxCommon.LoadScene(manager, scene, objFileName)
@@ -322,10 +323,19 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
         vertexBoneDatas = np.load(vertBoneDataFileName)
         ## 骨骼关联信息
         boneLinkDatas = np.load(skeleteLinkFileName)
-        ## 骨骼信息
-        boneDatas = np.load(boneDataFileName)
+        ## 骨骼位置信息
+        boneLocDatas = np.load(boneLocDataFileName)
+        ## 骨骼旋转信息
+        boneRotDatas = None
+        if boneRotDataFileName != None:
+            boneRotDatas = np.load(boneRotDataFileName)
+        ## 骨骼缩放信息
+        boneScaleDatas = None
+        if boneScaleDataFileName != None:
+            boneScaleDatas = np.load(boneScaleDataFileName)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
-        AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas)
+        AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
+                            boneScaleDatas, boneLinkDatas)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
@@ -341,13 +351,22 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
         ## 骨骼关联信息
         boneLinkDatas = np.load(skeleteLinkFileName)
         ## 骨骼信息
-        boneDatas = np.load(boneDataFileName)
+        boneLocDatas = np.load(boneLocDataFileName)
+        ## 骨骼旋转信息
+        boneRotDatas = None
+        if boneRotDataFileName != None:
+            boneRotDatas = np.load(boneRotDataFileName)
+        ## 骨骼缩放信息
+        boneScaleDatas = None
+        if boneScaleDataFileName != None:
+            boneScaleDatas = np.load(boneScaleDataFileName)
         ## 初始化FBX环境
         manager, scene = FbxCommon.InitializeSdkObjects()
         # 创建Mesh
         mesh, meshNode = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
-        AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneDatas, boneLinkDatas)
+        AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
+                             boneScaleDatas, boneLinkDatas)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
@@ -406,7 +425,7 @@ def Main():
             return
         return
     print("no parameter: run default~!")
-    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
+    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None, GetTestSkeleteLinkPath())
     ##Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
