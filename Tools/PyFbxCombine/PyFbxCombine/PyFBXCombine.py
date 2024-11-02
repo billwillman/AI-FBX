@@ -251,7 +251,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
             N2 = len(boneWeightDatas)
             for j in range(0, N2, 1):
                 if abs(boneWeightDatas[j]) >= 0.000001:
-                    s = "vertexIndex: " + str(j) + " boneIndex " + key + " boneWeight: " + str(boneWeightDatas[j])
+                    s = "boneIndex " + key + " vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
                     print(s)
                     f.write(s + "\n")
                     f.flush()
