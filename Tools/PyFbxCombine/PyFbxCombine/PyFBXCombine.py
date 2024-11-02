@@ -352,8 +352,8 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
 
-def Generate_Json_JointToNPY(dir, name):
-    fileName = "%s/%s_joints.json" % (dir, name)
+def Generate_Json_ToNPY(dir, name, extName):
+    fileName = "%s/%s_%s.json" % (dir, name, extName)
     if not os.path.exists(fileName):
         print("not found: %s" % fileName)
         return
@@ -372,11 +372,15 @@ def Generate_JsonToNPY(dir, name):
     dir = dir.replace("\\", "/")
     print("[Generate_JsonToNPY] dir: %s, name: %s" % (dir, name))
     ## 位置
-    Generate_Json_JointToNPY(dir, name)
+    Generate_Json_ToNPY(dir, name, "joints")
     ## 旋转
+    Generate_Json_ToNPY(dir, name, "rots")
     ## 缩放
-    ## 骨骼关联
+    Generate_Json_ToNPY(dir, name, "scales")
+    ## 骨骼关联"
+    Generate_Json_ToNPY(dir, name, "parents")
     ## 骨骼顶点的权重
+    Generate_Json_ToNPY(dir, name, "mesh")
     return
 
 def Main():
