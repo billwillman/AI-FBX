@@ -263,6 +263,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
         boneRot = None
         if boneRotDatas != None:
             boneRot = boneRotDatas[i]
+        boneScale = None
         if boneScale != None:
             boneScale = boneScaleDateas[i]
         key = str(i)
