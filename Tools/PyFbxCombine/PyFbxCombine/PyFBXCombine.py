@@ -279,10 +279,12 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
     for i in range(0, boneNum, 1):
         bonePos = bonePosDatas[i]
         boneRot = None
-        if str(type(boneRotDatas)) != "<class 'NoneType'>":
+        hasBoneRot = str(type(boneRotDatas)) != "<class 'NoneType'>"
+        if hasBoneRot:
             boneRot = boneRotDatas[i]
         boneScale = None
-        if str(type(boneScaleDateas)) != "<class 'NoneType'>":
+        hasBoneScale = str(type(boneScaleDateas)) != "<class 'NoneType'>"
+        if hasBoneScale:
             boneScale = boneScaleDateas[i]
         key = str(i)
         exportBoneMap[key] = {
@@ -290,9 +292,9 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
             "childs": [],
             "name": str(i), ## 骨骼名称
         }
-        if boneRot != None:
+        if hasBoneRot:
             exportBoneMap[key]["rotation"] = FbxDouble3(boneRot[0], boneRot[1], boneRot[2]), # 角度制(世界坐标系)
-        if boneScale != None:
+        if hasBoneScale:
             exportBoneMap[key]["scale"] = FbxDouble3(boneScale[0], boneScale[1], boneScale[3]), # 缩放(世界坐标系)
     ##### 拓扑关系
     boneLinkNum = len(boneLinkDatas)
