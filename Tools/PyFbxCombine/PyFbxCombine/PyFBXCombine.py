@@ -118,12 +118,26 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     fbxNode.SetNodeAttribute(skel)
     if isRoot:
         position: FbxDouble3 = node["position"]
-        fbxNode.LclTranslation.Set(FbxDouble3(position[0], position[1], position[2]))
+        fbxNode.LclTranslation.Set(position)
+        if "rotation" in node:
+            rot: FbxDouble3 = node["rotation"]
+            fbxNode.LclRotation.Set(rot)
+        if "scale" in node:
+            scale: FbxDouble3 = node["scale"]
+            fbxNode.LclScaling.Set(scale)
     else:
         parentPosition: FbxDouble3 = node["parent"]["position"]
         position: FbxDouble3 = node["position"]
         offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
         fbxNode.LclTranslation.Set(offsetPos)
+        if "rotation" in node:
+            parentRot: FbxDouble3 = node["parent"]["rotation"]
+            rot: FbxDouble3 = node["rotation"]
+            fbxNode.LclRotation.Set(FbxDouble3(rot[0] - parentRot[0], rot[1] - parentRot[1], rot[2] - parentRot[2]))
+        if "scale" in node:
+            parentScale: FbxDouble3 = node["parent"]["scale"]
+            scale: FbxDouble3 = node["scale"]
+            fbxNode.LclScaling.Set(FbxDouble3(scale[0] - parentScale[0], scale[1] - parentScale[1], scale[2] - parentScale[2]))
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
     return fbxNode
