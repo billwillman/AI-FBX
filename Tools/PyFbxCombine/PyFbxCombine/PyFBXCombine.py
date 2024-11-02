@@ -150,6 +150,9 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
         _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
     return
 
+global _cMinWeight
+_cMinWeight = 0.001
+
 def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode):
     rootFbxNode = skelRootNode["FbxNode"]
     clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + skelRootNode["name"])
@@ -168,7 +171,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
             N2 = len(boneWeightDatas)
             VertexNum = N2
             for j in range(0, N2, 1):
-                if abs(boneWeightDatas[j]) >= 0.000001:
+                if abs(boneWeightDatas[j]) >= _cMinWeight:
                     if not j in VertexBoneMap:
                         VertexBoneMap[j] = []
                     item = {"boneName": key, "boneIndex":i, "boneWeight": boneWeightDatas[j]}
