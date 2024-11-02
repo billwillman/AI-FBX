@@ -399,8 +399,14 @@ def Main():
             dir = str(argv[2])
             name = str(argv[3])
             Generate_JsonToNPY(dir, name)
+        elif argv[1] == "gen-fbx":
+            dir = str(argv[2])
+            name = str(argv[3])
+            Generate_ObjAndNPY_ToFBX(dir, name)
+            return
         return
-    ##BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
+    print("no parameter: run default~!")
+    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
     ##Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
