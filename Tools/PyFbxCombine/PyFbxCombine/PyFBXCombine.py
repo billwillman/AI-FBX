@@ -372,14 +372,19 @@ def Generate_JsonToNPY(dir, name):
     dir = dir.replace("\\", "/")
     print("[Generate_JsonToNPY] dir: %s, name: %s" % (dir, name))
     ## 位置
+    print("[Generate] Convert Location to joints...")
     Generate_Json_ToNPY(dir, name, "joints")
     ## 旋转
+    print("[Generate] Convert rot to rots...")
     Generate_Json_ToNPY(dir, name, "rots")
     ## 缩放
+    print("[Generate] Convert scale to scales...")
     Generate_Json_ToNPY(dir, name, "scales")
     ## 骨骼关联"
+    print("[Generate] Convert boneLink to parents...")
     Generate_Json_ToNPY(dir, name, "parents")
     ## 骨骼顶点的权重
+    print("[Generate] Convert boneWeight to mesh...")
     Generate_Json_ToNPY(dir, name, "mesh")
     return
 
@@ -392,7 +397,7 @@ def Main():
             Generate_JsonToNPY(dir, name)
         return
     ##BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
-    Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
+    ##Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
 ##################################### 调用入口 ###################################
