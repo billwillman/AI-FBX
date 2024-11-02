@@ -117,7 +117,8 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     fbxNode: FbxNode = FbxNode.Create(fbxManager, boneName)
     fbxNode.SetNodeAttribute(skel)
     if isRoot:
-        fbxNode.LclTranslation.Set(FbxDouble3(0, 0, 0))
+        position: FbxDouble3 = node["position"]
+        fbxNode.LclTranslation.Set(FbxDouble3(position[0], position[1], position[2]))
     else:
         parentPosition: FbxDouble3 = node["parent"]["position"]
         position: FbxDouble3 = node["position"]
