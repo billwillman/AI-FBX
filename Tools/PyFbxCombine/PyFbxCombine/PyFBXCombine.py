@@ -121,22 +121,23 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
         fbxNode.LclTranslation.Set(position)
         if "rotation" in node:
             rot: FbxDouble3 = node["rotation"]
-            fbxNode.LclRotation.Set(rot)
+            print(rot[0])
+            fbxNode.LclRotation.Set(rot[0])
         if "scale" in node:
             scale: FbxDouble3 = node["scale"]
-            fbxNode.LclScaling.Set(scale)
+            fbxNode.LclScaling.Set(scale[0])
     else:
         parentPosition: FbxDouble3 = node["parent"]["position"]
         position: FbxDouble3 = node["position"]
         offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
         fbxNode.LclTranslation.Set(offsetPos)
         if "rotation" in node:
-            parentRot: FbxDouble3 = node["parent"]["rotation"]
-            rot: FbxDouble3 = node["rotation"]
+            parentRot: FbxDouble3 = node["parent"]["rotation"][0]
+            rot: FbxDouble3 = node["rotation"][0]
             fbxNode.LclRotation.Set(FbxDouble3(rot[0] - parentRot[0], rot[1] - parentRot[1], rot[2] - parentRot[2]))
         if "scale" in node:
-            parentScale: FbxDouble3 = node["parent"]["scale"]
-            scale: FbxDouble3 = node["scale"]
+            parentScale: FbxDouble3 = node["parent"]["scale"][0]
+            scale: FbxDouble3 = node["scale"][0]
             fbxNode.LclScaling.Set(FbxDouble3(scale[0] - parentScale[0], scale[1] - parentScale[1], scale[2] - parentScale[2]))
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
@@ -293,9 +294,11 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
             "name": str(i), ## 骨骼名称
         }
         if hasBoneRot:
-            exportBoneMap[key]["rotation"] = FbxDouble3(boneRot[0], boneRot[1], boneRot[2]), # 角度制(世界坐标系)
+            node = exportBoneMap[key]
+            node["rotation"] = FbxDouble3(boneRot[0], boneRot[1], boneRot[2]), # 角度制(世界坐标系)
         if hasBoneScale:
-            exportBoneMap[key]["scale"] = FbxDouble3(boneScale[0], boneScale[1], boneScale[2]), # 缩放(世界坐标系)
+            node = exportBoneMap[key]
+            node["scale"] = FbxDouble3(boneScale[0], boneScale[1], boneScale[2]), # 缩放(世界坐标系)
     ##### 拓扑关系
     boneLinkNum = len(boneLinkDatas)
     if boneLinkNum <= 0 or boneLinkNum != boneNum:
@@ -365,6 +368,7 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         if boneScaleDataFileName != None:
             boneScaleDatas = np.load(boneScaleDataFileName)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
+        # AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas)
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
                             boneScaleDatas, boneLinkDatas)
     else:
@@ -464,6 +468,7 @@ def Generate_ObjAndNPY_ToFBX(dir, name):
     boneScaleFileName = os.path.abspath(boneScaleFileName)
     if not os.path.exists(boneScaleFileName):
         boneScaleFileName = None
+    ## BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, outFileName = "out.fbx")
     BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName, boneLinkeFileName)
     return
 
@@ -482,8 +487,9 @@ def Main():
         return
     print("no parameter: run default~!")
     ##print(type(None))
-    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None, GetTestSkeleteLinkPath())
-    ##Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
+    #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None, GetTestSkeleteLinkPath())
+    Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002")
+    #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
 ##################################### 调用入口 ###################################
