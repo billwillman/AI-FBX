@@ -1,3 +1,5 @@
+import sys
+
 import os
 import numpy as np
 from objloader import Obj
@@ -349,7 +351,36 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
 
+def Generate_JsonToNPY(fileName):
+    return
+
+def Generate_JsonToNPY(dir, name):
+    print("[Generate_JsonToNPY] dir: %s, name: %s" % (dir, name))
+    ## 位置
+    fileName = "%s/%s_joints.json" % (dir, name)
+    Generate_JsonToNPY(fileName)
+    ## 旋转
+    fileName = "%s/%s_rots.json" % (dir, name)
+    Generate_JsonToNPY(fileName)
+    ## 缩放
+    fileName = "%s/%s_scales.json" % (dir, name)
+    Generate_JsonToNPY(fileName)
+    ## 骨骼关联
+    fileName = "%s/%s_parents.json" % (dir, name)
+    Generate_JsonToNPY(fileName)
+    ## 骨骼顶点的权重
+    fileName = "%s/%s_mesh.json" % (dir, name)
+    Generate_JsonToNPY(fileName)
+    return
+
 def Main():
+    argv = sys.argv
+    if len(argv) >= 4:
+        if argv[1] == "gen-npy":
+            dir = str(argv[2])
+            name = str(argv[3])
+            Generate_JsonToNPY(dir, name)
+        return
     BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
     return
 
