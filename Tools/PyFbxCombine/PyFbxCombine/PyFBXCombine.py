@@ -168,7 +168,8 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     rootFbxNode = skelRootNode["FbxNode"]
     clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + skelRootNode["name"])
     clusterRoot.SetLink(rootFbxNode)
-    clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
+    ##clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
+    clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
 
     cluster_dict = {}
     N1 = len(vertexBoneDatas)
