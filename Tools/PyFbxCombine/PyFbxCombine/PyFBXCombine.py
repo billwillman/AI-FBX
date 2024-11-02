@@ -279,10 +279,10 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
     for i in range(0, boneNum, 1):
         bonePos = bonePosDatas[i]
         boneRot = None
-        if boneRotDatas != None:
+        if str(type(boneRotDatas)) != "<class 'NoneType'>":
             boneRot = boneRotDatas[i]
         boneScale = None
-        if boneScale != None:
+        if str(type(boneScaleDateas)) != "<class 'NoneType'>":
             boneScale = boneScaleDateas[i]
         key = str(i)
         exportBoneMap[key] = {
@@ -479,6 +479,7 @@ def Main():
             return
         return
     print("no parameter: run default~!")
+    ##print(type(None))
     BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None, GetTestSkeleteLinkPath())
     ##Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
