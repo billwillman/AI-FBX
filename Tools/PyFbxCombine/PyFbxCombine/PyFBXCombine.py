@@ -104,7 +104,7 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     currentNode.AddNodeAttribute(mesh)
 
     rootNode.AddChild(currentNode)
-    return mesh, currentNodes
+    return mesh, currentNode
 
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
