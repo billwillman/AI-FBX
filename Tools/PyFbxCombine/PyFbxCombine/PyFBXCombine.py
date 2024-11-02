@@ -435,6 +435,31 @@ def Generate_JsonToNPY(dir, name):
 
 # 使用obj文件和NPY文件生成FBX
 def Generate_ObjAndNPY_ToFBX(dir, name):
+    objFileName = "%s/%s.obj" % (dir, name)
+    objFileName = os.path.abspath(objFileName)
+    if not os.path.exists(objFileName):
+        return
+    vertexBoneFileName = "%s/%s_mesh.npy" % (dir, name)
+    vertexBoneFileName = os.path.abspath(vertexBoneFileName)
+    if not os.path.exists(vertexBoneFileName):
+        return
+    boneLocFileName = "%s/%s_joints.npy" % (dir, name)
+    boneLocFileName = os.path.abspath(boneLocFileName)
+    if not os.path.exists(boneLocFileName):
+        return
+    boneLinkeFileName = "%s/%s_parents.npy" % (dir, name)
+    boneLinkeFileName = os.path.abspath(boneLinkeFileName)
+    if not os.path.exists(boneLinkeFileName):
+        return
+    boneRotFileName = "%s/%s_rots.npy" % (dir, name)
+    boneRotFileName = os.path.abspath(boneRotFileName)
+    if not os.path.exists(boneRotFileName):
+        boneRotFileName = None
+    boneScaleFileName = "%s/%s_scales.npy" % (dir, name)
+    boneScaleFileName = os.path.abspath(boneScaleFileName)
+    if not os.path.exists(boneScaleFileName):
+        boneScaleFileName = None
+    BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName, boneLinkeFileName)
     return
 
 def Main():
