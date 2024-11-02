@@ -1,5 +1,6 @@
 import sys
 
+import json
 import os
 import numpy as np
 from objloader import Obj
@@ -351,26 +352,31 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneDataFileName, skeleteLin
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
 
-def Generate_JsonToNPY(fileName):
+def Generate_Json_JointToNPY(dir, name):
+    fileName = "%s/%s_joints.json" % (dir, name)
+    if not os.path.exists(fileName):
+        print("not found: %s" % fileName)
+        return
+    f = open(fileName, "r")
+    str = f.read()
+    f.close()
+    arr = json.loads(str)
+    target = np.array(arr)
+    idx = fileName.rfind(".")
+    fileName = fileName[:idx] + ".npy"
+    np.save(fileName, target)
     return
 
 def Generate_JsonToNPY(dir, name):
+    dir = os.path.abspath(dir)
+    dir = dir.replace("\\", "/")
     print("[Generate_JsonToNPY] dir: %s, name: %s" % (dir, name))
     ## 位置
-    fileName = "%s/%s_joints.json" % (dir, name)
-    Generate_JsonToNPY(fileName)
+    Generate_Json_JointToNPY(dir, name)
     ## 旋转
-    fileName = "%s/%s_rots.json" % (dir, name)
-    Generate_JsonToNPY(fileName)
     ## 缩放
-    fileName = "%s/%s_scales.json" % (dir, name)
-    Generate_JsonToNPY(fileName)
     ## 骨骼关联
-    fileName = "%s/%s_parents.json" % (dir, name)
-    Generate_JsonToNPY(fileName)
     ## 骨骼顶点的权重
-    fileName = "%s/%s_mesh.json" % (dir, name)
-    Generate_JsonToNPY(fileName)
     return
 
 def Main():
@@ -381,7 +387,8 @@ def Main():
             name = str(argv[3])
             Generate_JsonToNPY(dir, name)
         return
-    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
+    ##BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), GetTestSkeleteLinkPath())
+    Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
 ##################################### 调用入口 ###################################
