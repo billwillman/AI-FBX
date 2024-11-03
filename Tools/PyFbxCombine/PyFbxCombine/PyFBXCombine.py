@@ -551,13 +551,6 @@ def Main():
             return
         return
     print("no parameter: run default~!")
-    '''
-    parenteRot = FbxDouble3(90, 0, 0)
-    rot = FbxDouble3(90, 0, 0)
-    subRot = _RelativeDegree(parenteRot, rot)
-    print(subRot[0], subRot[1], subRot[2])
-    return
-    '''
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
