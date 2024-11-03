@@ -113,17 +113,26 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode.AddChild(currentNode)
     return mesh, currentNode
 
+def _NormalDegree(degree: float)->float:
+    if degree > 180.0:
+        degree = degree - 360.0
+    elif degree < -180.0:
+        degree = degree + 360.0
+    return degree
+
 def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble3:
-    '''
     parentQuat: FbxQuaternion = FbxQuaternion()
-    parentQuat.ComposeSphericalXYZ(FbxVector4(parentDegree))
+    parentQuat.ComposeSphericalXYZ(FbxVector4(-parentDegree[0], -parentDegree[1], -parentDegree[2]))
+    parentQuat.Normalize()
     myQuat: FbxQuaternion = FbxQuaternion()
     myQuat.ComposeSphericalXYZ(FbxVector4(currDegree))
-    subQuat = myQuat - parentQuat
-    subDegree: FbxDouble3 = subQuat.DecomposeSphericalXYZ()
-    '''
-    subDegree = FbxDouble3(currDegree[0] - parentDegree[0], currDegree[1] - parentDegree[1],
-                        currDegree[2] - parentDegree[2])
+    myQuat.Normalize()
+    subQuat: FbxQuaternion = parentQuat * myQuat
+    sub: FbxVector4 = subQuat.DecomposeSphericalXYZ()
+    x = _NormalDegree(sub[0])
+    y = _NormalDegree(sub[1])
+    z = _NormalDegree(sub[2])
+    subDegree: FbxDouble3 = FbxDouble3(x, y, z)
     return subDegree
 
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
@@ -551,6 +560,13 @@ def Main():
             return
         return
     print("no parameter: run default~!")
+    '''
+    parenteRot = FbxDouble3(45, 45, 0)
+    rot = FbxDouble3(0, 45, 45)
+    subRot = _RelativeDegree(parenteRot, rot)
+    print(subRot[0], subRot[1], subRot[2])
+    return
+    '''
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
