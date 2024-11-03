@@ -113,6 +113,15 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode.AddChild(currentNode)
     return mesh, currentNode
 
+def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble3:
+    parentQuat: FbxQuaternion = FbxQuaternion()
+    parentQuat.ComposeSphericalXYZ(parentDegree[0], parentDegree[1], parentDegree[2])
+    myQuat: FbxQuaternion = FbxQuaternion()
+    myQuat.ComposeSphericalXYZ(currDegree[0], currDegree[1], currDegree[2])
+    subQuat = myQuat - parentQuat
+    subDegree: FbxDouble3 = subQuat.DecomposeSphericalXYZ()
+    return subDegree
+
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
     isRoot = not _HasAttribute(node, "parent")
@@ -150,7 +159,8 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             if _HasAttribute(node, "rotation"):
                 parentRot: FbxDouble3 = node["parent"]["rotation"]
                 rot: FbxDouble3 = node["rotation"]
-                fbxNode.LclRotation.Set(FbxDouble3(rot[0] - parentRot[0], rot[1] - parentRot[1], rot[2] - parentRot[2]))
+                subDegree: FbxDouble3 = _RelativeDegree(parentRot, rot)
+                fbxNode.LclRotation.Set(subDegree)
             if _HasAttribute(node, "scale"):
                 parentScale: FbxDouble3 = node["parent"]["scale"]
                 scale: FbxDouble3 = node["scale"]
