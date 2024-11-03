@@ -120,6 +120,9 @@ def _NormalDegree(degree: float)->float:
         degree = degree + 360.0
     return degree
 
+def _PitchYallRollToQuat(degrees: FbxDouble3)->FbxQuaternion:
+    return
+
 def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble3:
     parentQuat: FbxQuaternion = FbxQuaternion()
     parentQuat.ComposeSphericalXYZ(FbxVector4(-parentDegree[0], -parentDegree[1], -parentDegree[2]))
