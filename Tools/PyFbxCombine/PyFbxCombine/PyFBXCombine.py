@@ -283,6 +283,17 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     mesh.AddDeformer(skin)
     return
 
+def _TransBoneNameAndChilds(boneNode):
+    if boneNode == None:
+        return
+    if "realName" in boneNode:
+        boneRealName = boneNode["realName"]
+        fbxBone: FbxNode = boneNode["FbxNode"]
+        fbxBone.SetName(boneRealName)
+    for childNode in boneNode["childs"]:
+        _TransBoneNameAndChilds(childNode)
+    return
+
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
     ## 骨骼KEY（字符串）和位置建立关系
@@ -344,12 +355,8 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ## 更换骨骼节点名(执行放最后)
-    for key, value in exportBoneMap.items():
-        boneName = value["name"]
-        boneNode: FbxNode = scene.FindNodeByName(boneName)
-        if "realName" in value:
-            boneRealName = value["realName"]
-            boneNode.SetName(boneRealName)
+    if skelRootNode != None:
+        _TransBoneNameAndChilds(skelRootNode)
     return
 
 global bUseSceneImport
