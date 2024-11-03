@@ -106,6 +106,13 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode.AddChild(currentNode)
     return mesh, currentNode
 
+def _HasAttribute(obj, name)->bool:
+    ret = name in obj
+    if ret:
+        typeName = str(type(obj[name]))
+        ret = typeName != "<class 'NoneType'>"
+    return ret
+
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
     isRoot = not ("parent" in node)
@@ -119,20 +126,20 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     if isRoot:
         position: FbxDouble3 = node["position"]
         fbxNode.LclTranslation.Set(position)
-        if "rotation" in node:
+        if _HasAttribute(node, "rotation"):
             rot: FbxDouble3 = node["rotation"]
             fbxNode.LclRotation.Set(rot)
-        if "scale" in node:
+        if _HasAttribute(node, "scale"):
             scale: FbxDouble3 = node["scale"]
             fbxNode.LclScaling.Set(scale)
     else:
         if node["useLocalSpace"] == True:
             position: FbxDouble3 = node["position"]
             fbxNode.LclTranslation.Set(position)
-            if "rotation" in node:
+            if _HasAttribute(node, "rotation"):
                 rot: FbxDouble3 = node["rotation"]
                 fbxNode.LclRotation.Set(rot)
-            if "scale" in node:
+            if _HasAttribute(node, "scale"):
                 scale: FbxDouble3 = node["scale"]
                 fbxNode.LclScaling.Set(scale)
         else:
@@ -141,11 +148,11 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             position: FbxDouble3 = node["position"]
             offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
             fbxNode.LclTranslation.Set(offsetPos)
-            if "rotation" in node:
+            if _HasAttribute(node, "rotation"):
                 parentRot: FbxDouble3 = node["parent"]["rotation"]
                 rot: FbxDouble3 = node["rotation"]
                 fbxNode.LclRotation.Set(FbxDouble3(rot[0] - parentRot[0], rot[1] - parentRot[1], rot[2] - parentRot[2]))
-            if "scale" in node:
+            if _HasAttribute(node, "scale"):
                 parentScale: FbxDouble3 = node["parent"]["scale"]
                 scale: FbxDouble3 = node["scale"]
                 fbxNode.LclScaling.Set(FbxDouble3(scale[0] - parentScale[0], scale[1] - parentScale[1], scale[2] - parentScale[2]))
@@ -532,8 +539,13 @@ def Main():
         return
     print("no parameter: run default~!")
     ##print(type(None))
-    #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None, GetTestSkeleteLinkPath())
-    Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002", True)
+    '''
+        BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
+                     skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
+    '''
+    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
+                 GetTestSkeleteLinkPath(), None)
+    #Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002", True)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
