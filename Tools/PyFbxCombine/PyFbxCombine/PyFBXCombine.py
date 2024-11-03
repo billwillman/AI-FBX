@@ -125,9 +125,9 @@ def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble
     parentQuat.ComposeSphericalXYZ(FbxVector4(-parentDegree[0], -parentDegree[1], -parentDegree[2]))
     parentQuat.Normalize()
     myQuat: FbxQuaternion = FbxQuaternion()
-    myQuat.ComposeSphericalXYZ(FbxVector4(currDegree))
+    myQuat.ComposeSphericalXYZ(FbxVector4(currDegree[0], currDegree[1], currDegree[2]))
     myQuat.Normalize()
-    subQuat: FbxQuaternion = parentQuat * myQuat
+    subQuat: FbxQuaternion =  parentQuat * myQuat
     sub: FbxVector4 = subQuat.DecomposeSphericalXYZ()
     x = _NormalDegree(sub[0])
     y = _NormalDegree(sub[1])
@@ -559,10 +559,10 @@ def Main():
             Generate_ObjAndNPY_ToFBX(dir, name, True)
             return
         return
-    print("no parameter: run default~!")
     '''
-    parenteRot = FbxDouble3(45, 45, 0)
-    rot = FbxDouble3(0, 45, 45)
+    print("no parameter: run default~!")
+    parenteRot = FbxDouble3(45, 0, 0)
+    rot = FbxDouble3(45, 45, 0)
     subRot = _RelativeDegree(parenteRot, rot)
     print(subRot[0], subRot[1], subRot[2])
     return
