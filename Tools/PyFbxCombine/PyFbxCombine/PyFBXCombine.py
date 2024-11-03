@@ -11,6 +11,13 @@ from test.test_importlib.import_.test_fromlist import ReturnValue
 from functools import cmp_to_key
 
 
+def _HasAttribute(obj, name)->bool:
+    ret = name in obj
+    if ret:
+        typeName = str(type(obj[name]))
+        ret = typeName != "<class 'NoneType'>"
+    return ret
+
 def GetAbsoluteRootPath():
     result = os.path.dirname(os.path.realpath(__file__))
     return result
@@ -106,16 +113,9 @@ def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode.AddChild(currentNode)
     return mesh, currentNode
 
-def _HasAttribute(obj, name)->bool:
-    ret = name in obj
-    if ret:
-        typeName = str(type(obj[name]))
-        ret = typeName != "<class 'NoneType'>"
-    return ret
-
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
-    isRoot = not ("parent" in node)
+    isRoot = not _HasAttribute(node, "parent")
     skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, boneName)
     if isRoot:
         skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
@@ -293,7 +293,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
 def _TransBoneNameAndChilds(boneNode):
     if boneNode == None:
         return
-    if "realName" in boneNode:
+    if _HasAttribute(boneNode, "realName"):
         boneRealName = boneNode["realName"]
         fbxBone: FbxNode = boneNode["FbxNode"]
         fbxBone.SetName(boneRealName)
@@ -348,7 +348,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
 
     removeList = []
     for key, value in exportBoneMap.items():
-        if "parent" in value:
+        if _HasAttribute(value, "parent"):
             removeList.append(key)
     for key in removeList:
         exportBoneMap.pop(key, None)
