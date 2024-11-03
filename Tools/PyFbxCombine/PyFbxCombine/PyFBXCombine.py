@@ -453,6 +453,9 @@ def Generate_JsonToNPY(dir, name):
     ## 骨骼顶点的权重
     print("[Generate] Convert boneWeight to mesh...")
     Generate_Json_ToNPY(dir, name, "mesh")
+    ## 骨骼名称
+    print("[Generate] Convert boneName to names...")
+    Generate_Json_ToNPY(dir, name, "names")
     return
 
 # 使用obj文件和NPY文件生成FBX
