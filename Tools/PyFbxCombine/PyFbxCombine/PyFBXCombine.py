@@ -343,7 +343,13 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
         scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
-    ##
+    ## 更换骨骼节点名(执行放最后)
+    for key, value in exportBoneMap.items():
+        boneName = value["name"]
+        boneNode: FbxNode = scene.FindNodeByName(boneName)
+        if "realName" in value:
+            boneRealName = value["realName"]
+            boneNode.SetName(boneRealName)
     return
 
 global bUseSceneImport
