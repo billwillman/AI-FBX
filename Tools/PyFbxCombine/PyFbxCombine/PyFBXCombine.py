@@ -143,7 +143,6 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
                 scale: FbxDouble3 = node["scale"]
                 fbxNode.LclScaling.Set(scale)
         else:
-            ### 后面废弃
             parentPosition: FbxDouble3 = node["parent"]["position"]
             position: FbxDouble3 = node["position"]
             offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
