@@ -120,20 +120,20 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
         position: FbxDouble3 = node["position"]
         fbxNode.LclTranslation.Set(position)
         if "rotation" in node:
-            rot: FbxDouble3 = node["rotation"][0]
+            rot: FbxDouble3 = node["rotation"]
             fbxNode.LclRotation.Set(rot)
         if "scale" in node:
-            scale: FbxDouble3 = node["scale"][0]
+            scale: FbxDouble3 = node["scale"]
             fbxNode.LclScaling.Set(scale)
     else:
         if node["useLocalSpace"] == True:
             position: FbxDouble3 = node["position"]
             fbxNode.LclTranslation.Set(position)
             if "rotation" in node:
-                rot: FbxDouble3 = node["rotation"][0]
+                rot: FbxDouble3 = node["rotation"]
                 fbxNode.LclRotation.Set(rot)
             if "scale" in node:
-                scale: FbxDouble3 = node["scale"][0]
+                scale: FbxDouble3 = node["scale"]
                 fbxNode.LclScaling.Set(scale)
         else:
             ### 后面废弃
@@ -142,12 +142,12 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
             fbxNode.LclTranslation.Set(offsetPos)
             if "rotation" in node:
-                parentRot: FbxDouble3 = node["parent"]["rotation"][0]
-                rot: FbxDouble3 = node["rotation"][0]
+                parentRot: FbxDouble3 = node["parent"]["rotation"]
+                rot: FbxDouble3 = node["rotation"]
                 fbxNode.LclRotation.Set(FbxDouble3(rot[0] - parentRot[0], rot[1] - parentRot[1], rot[2] - parentRot[2]))
             if "scale" in node:
-                parentScale: FbxDouble3 = node["parent"]["scale"][0]
-                scale: FbxDouble3 = node["scale"][0]
+                parentScale: FbxDouble3 = node["parent"]["scale"]
+                scale: FbxDouble3 = node["scale"]
                 fbxNode.LclScaling.Set(FbxDouble3(scale[0] - parentScale[0], scale[1] - parentScale[1], scale[2] - parentScale[2]))
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
@@ -283,7 +283,8 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode
     mesh.AddDeformer(skin)
     return
 
-def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, useLocalSpace):
+def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
+                         boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
     ## 骨骼KEY（字符串）和位置建立关系
     boneNum = len(bonePosDatas)
     if boneNum <= 0:
@@ -299,19 +300,20 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
         hasBoneScale = str(type(boneScaleDateas)) != "<class 'NoneType'>"
         if hasBoneScale:
             boneScale = boneScaleDateas[i]
+        boneRealName = None
+        hasBoneRealName = str(type(boneNamesData)) != "<class 'NoneType'>"
+        if hasBoneRealName:
+            boneRealName = boneNamesData[i]
         key = str(i)
         exportBoneMap[key] = {
             "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]), # 位置(世界坐标系)
             "childs": [],
             "name": str(i), ## 骨骼名称
             "useLocalSpace": useLocalSpace,
+            "realName": boneRealName if hasBoneRealName else None,
+            "rotation": FbxDouble3(boneRot[0], boneRot[1], boneRot[2]) if hasBoneRot else None, # 角度制(坐标系看useLocalSpace)
+            "scale": FbxDouble3(boneScale[0], boneScale[1], boneScale[2]) if hasBoneScale else None, # 缩放(坐标系看useLocalSpace)
         }
-        if hasBoneRot:
-            node = exportBoneMap[key]
-            node["rotation"] = FbxDouble3(boneRot[0], boneRot[1], boneRot[2]), # 角度制(世界坐标系)
-        if hasBoneScale:
-            node = exportBoneMap[key]
-            node["scale"] = FbxDouble3(boneScale[0], boneScale[1], boneScale[2]), # 缩放(世界坐标系)
     ##### 拓扑关系
     boneLinkNum = len(boneLinkDatas)
     if boneLinkNum <= 0 or boneLinkNum != boneNum:
@@ -348,7 +350,8 @@ global bUseSceneImport
 bUseSceneImport = True
 
 ## obj模型 顶点BoneWeight 骨骼位置 骨骼父子关系 导出文件
-def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, useLocalSpace = False, outFileName = "out.fbx"):
+def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
+                 skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx"):
     if bUseSceneImport:
         manager, scene = FbxCommon.InitializeSdkObjects()
         FbxCommon.LoadScene(manager, scene, objFileName)
@@ -380,10 +383,14 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         boneScaleDatas = None
         if boneScaleDataFileName != None:
             boneScaleDatas = np.load(boneScaleDataFileName)
+        ## 骨骼名称
+        boneNamesData = None
+        if boneNamesFileName != None:
+            boneNamesData = np.load(boneNamesFileName)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
-        # AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas)
+        # AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
-                            boneScaleDatas, boneLinkDatas, useLocalSpace)
+                            boneScaleDatas, boneLinkDatas, boneNamesData, useLocalSpace)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
@@ -408,13 +415,17 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         boneScaleDatas = None
         if boneScaleDataFileName != None:
             boneScaleDatas = np.load(boneScaleDataFileName)
+        ## 骨骼名称
+        boneNamesData = None
+        if boneNamesFileName != None:
+            boneNamesData = np.load(boneNamesFileName)
         ## 初始化FBX环境
         manager, scene = FbxCommon.InitializeSdkObjects()
         # 创建Mesh
         mesh, meshNode = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
-                             boneScaleDatas, boneLinkDatas, useLocalSpace)
+                             boneScaleDatas, boneLinkDatas, boneNamesData, useLocalSpace)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
@@ -484,8 +495,13 @@ def Generate_ObjAndNPY_ToFBX(dir, name, useLocalSpace):
     boneScaleFileName = os.path.abspath(boneScaleFileName)
     if not os.path.exists(boneScaleFileName):
         boneScaleFileName = None
-    ## BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, useLocalSpace, outFileName = "out.fbx")
-    BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName, boneLinkeFileName, useLocalSpace)
+    boneNamesFileName = "%s/%s_names.npy" % (dir, name)
+    boneNamesFileName = os.path.abspath(boneNamesFileName)
+    if not os.path.exists(boneNamesFileName):
+        boneNamesFileName = None
+    ## BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, boneNamesFileName, useLocalSpace, outFileName = "out.fbx")
+    BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName,
+                 boneLinkeFileName, boneNamesFileName, useLocalSpace)
     return
 
 def Main():
