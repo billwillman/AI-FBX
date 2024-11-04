@@ -128,46 +128,55 @@ def _CreateQuatFronAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
     ret: FbxQuaternion = FbxQuaternion(axis[0] * theta_sin, axis[1] * theta_sin, axis[2] * theta_sin, theta_cos)
     return ret
 
-def _QuatToRollPitchYaw(quat: FbxQuaternion):
-    x = quat.X
-    y = quat.Y
-    z = quat.Z
-    w = quat.w
+def _QuatToRollPitchYaw(quat: FbxQuaternion)->FbxDouble3:
+    x = quat[0]
+    y = quat[1]
+    z = quat[2]
+    w = quat[3]
     t0 = +2.0 * (w * x + y * z)
     t1 = +1.0 - 2.0 * (x * x + y * y)
     roll_x = math.atan2(t0, t1) * 180.0/math.pi
+    if math.fabs(roll_x) <= 0.000001:
+        roll_x = 0
 
     t2 = +2.0 * (w * y - z * x)
     t2 = +1.0 if t2 > +1.0 else t2
     t2 = -1.0 if t2 < -1.0 else t2
     pitch_y = math.asin(t2) * 180.0/math.pi
+    if math.fabs(pitch_y) <= 0.000001:
+        pitch_y = 0
 
     t3 = +2.0 * (w * z + x * y)
     t4 = +1.0 - 2.0 * (y * y + z * z)
     yaw_z = math.atan2(t3, t4) * 180.0/math.pi
+    if math.fabs(yaw_z) <= 0.000001:
+        yaw_z = 0
 
-    return roll_x, pitch_y, yaw_z  # in radians
+    ret = FbxDouble3(roll_x, pitch_y, yaw_z)
+    return ret  # in radians
 
 def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
-    qx = _CreateQuatFronAxisDegree(FbxDouble3(1.0, 0, 0), degrees[0])
-    qy = _CreateQuatFronAxisDegree(FbxDouble3(0, 1.0, 0), degrees[1])
-    qz = _CreateQuatFronAxisDegree(FbxDouble3(0, 0, 1.0), degrees[2])
-    ret: FbxQuaternion = qx * qy * qz
+    cr = math.cos(degrees[0] * math.pi / 180.0 * 0.5);
+    sr = math.sin(degrees[0] * math.pi / 180.0 * 0.5);
+    cp = math.cos(degrees[1] * math.pi / 180.0 * 0.5);
+    sp = math.sin(degrees[1] * math.pi / 180.0 * 0.5);
+    cy = math.cos(degrees[2] * math.pi / 180.0 * 0.5);
+    sy = math.sin(degrees[2] * math.pi / 180.0 * 0.5);
+
+    x = sr * cp * cy - cr * sp * sy
+    y = cr * sp * cy + sr * cp * sy
+    z = cr * cp * sy - sr * sp * cy
+    w = cr * cp * cy + sr * sp * sy
+    ret = FbxQuaternion(x, y, z, w)
     return ret
 
 def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble3:
-    parentQuat: FbxQuaternion = FbxQuaternion()
-    parentQuat.ComposeSphericalXYZ(FbxVector4(-parentDegree[0], -parentDegree[1], -parentDegree[2]))
+    parentQuat: FbxQuaternion = _RollPitchYawToQuat(FbxDouble3(-parentDegree[0], -parentDegree[1], -parentDegree[2]))
     parentQuat.Normalize()
-    myQuat: FbxQuaternion = FbxQuaternion()
-    myQuat.ComposeSphericalXYZ(FbxVector4(currDegree[0], currDegree[1], currDegree[2]))
+    myQuat: FbxQuaternion =_RollPitchYawToQuat(currDegree)
     myQuat.Normalize()
-    subQuat: FbxQuaternion =  parentQuat * myQuat
-    sub: FbxVector4 = subQuat.DecomposeSphericalXYZ()
-    x = _NormalDegree(sub[0])
-    y = _NormalDegree(sub[1])
-    z = _NormalDegree(sub[2])
-    subDegree: FbxDouble3 = FbxDouble3(x, y, z)
+    subQuat: FbxQuaternion = parentQuat * myQuat
+    subDegree: FbxDouble3 = _QuatToRollPitchYaw(subQuat)
     return subDegree
 
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
@@ -595,7 +604,6 @@ def Main():
             return
         return
     '''
-    print("no parameter: run default~!")
     parenteRot = FbxDouble3(45, 0, 0)
     rot = FbxDouble3(45, 45, 0)
     subRot = _RelativeDegree(parenteRot, rot)
