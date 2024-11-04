@@ -423,8 +423,16 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
                  skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx"):
     if bUseSceneImport:
         manager, scene = FbxCommon.InitializeSdkObjects()
+        '''
+        globalSetting: FbxGlobalSettings = scene.GetGlobalSettings()
+        axisSystem: FbxAxisSystem = FbxAxisSystem(FbxAxisSystem.EUpVector.eYAxis, FbxAxisSystem.EFrontVector.eParityEven,
+                                                  FbxAxisSystem.ECoordSystem.eLeftHanded)
+        globalSetting.SetOriginalUpAxis(axisSystem)
+        globalSetting.SetAxisSystem(axisSystem)
+        '''
         FbxCommon.LoadScene(manager, scene, objFileName)
         scene.GetRootNode().GetChild(0).GetChild(0).SetName("Character")
+
         FbxGeometryConverter(manager).Triangulate(scene, True) #保证模型是三角形
         meshNode: FbxNode = scene.GetRootNode().GetChild(0).GetChild(0)
         attriNum = meshNode.GetNodeAttributeCount()
