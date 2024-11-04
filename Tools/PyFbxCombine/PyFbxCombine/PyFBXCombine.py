@@ -128,7 +128,27 @@ def _CreateQuatFronAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
     ret: FbxQuaternion = FbxQuaternion(axis[0] * theta_sin, axis[1] * theta_sin, axis[2] * theta_sin, theta_cos)
     return ret
 
-def _PitchYallRollToQuat(degrees: FbxDouble3)->FbxQuaternion:
+def _QuatToRollPitchYaw(quat: FbxQuaternion):
+    x = quat.X
+    y = quat.Y
+    z = quat.Z
+    w = quat.w
+    t0 = +2.0 * (w * x + y * z)
+    t1 = +1.0 - 2.0 * (x * x + y * y)
+    roll_x = math.atan2(t0, t1) * 180.0/math.pi
+
+    t2 = +2.0 * (w * y - z * x)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch_y = math.asin(t2) * 180.0/math.pi
+
+    t3 = +2.0 * (w * z + x * y)
+    t4 = +1.0 - 2.0 * (y * y + z * z)
+    yaw_z = math.atan2(t3, t4) * 180.0/math.pi
+
+    return roll_x, pitch_y, yaw_z  # in radians
+
+def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
     qx = _CreateQuatFronAxisDegree(FbxDouble3(1.0, 0, 0), degrees[0])
     qy = _CreateQuatFronAxisDegree(FbxDouble3(0, 1.0, 0), degrees[1])
     qz = _CreateQuatFronAxisDegree(FbxDouble3(0, 0, 1.0), degrees[2])
