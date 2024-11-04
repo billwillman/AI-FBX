@@ -594,6 +594,7 @@ def Main():
     return
     ##print(type(None))
     '''
+    '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
                      skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
     '''
