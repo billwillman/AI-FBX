@@ -592,8 +592,8 @@ def Main():
     subRot = _RelativeDegree(parenteRot, rot)
     print(subRot[0], subRot[1], subRot[2])
     return
-    ##print(type(None))
     '''
+    ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
                      skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
