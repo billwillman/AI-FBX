@@ -1,3 +1,4 @@
+import math
 import sys
 
 import json
@@ -120,8 +121,19 @@ def _NormalDegree(degree: float)->float:
         degree = degree + 360.0
     return degree
 
+def _CreateQuatFronAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
+    angle: float = degree * math.pi / 180.0 / 2.0
+    theta_sin = math.sin(angle)
+    theta_cos = math.cos(angle)
+    ret: FbxQuaternion = FbxQuaternion(axis[0] * theta_sin, axis[1] * theta_sin, axis[2] * theta_sin, theta_cos)
+    return ret
+
 def _PitchYallRollToQuat(degrees: FbxDouble3)->FbxQuaternion:
-    return
+    qx = _CreateQuatFronAxisDegree(FbxDouble3(1.0, 0, 0), degrees[0])
+    qy = _CreateQuatFronAxisDegree(FbxDouble3(0, 1.0, 0), degrees[1])
+    qz = _CreateQuatFronAxisDegree(FbxDouble3(0, 0, 1.0), degrees[2])
+    ret: FbxQuaternion = qx * qy * qz
+    return ret
 
 def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble3:
     parentQuat: FbxQuaternion = FbxQuaternion()
