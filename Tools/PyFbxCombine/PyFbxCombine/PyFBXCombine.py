@@ -227,12 +227,13 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     return fbxNode
 
 ## 创建子FBX节点
-def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode):
+def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode, exportBoneNum):
     for child in targetNode["childs"]:
         childFbxNode: FbxNode = _CreateFbxBoneNode(fbxManager, child)
         targetFbxNode.AddChild(childFbxNode)
-        _CreateChildFbxBoneNode(fbxManager, childFbxNode, child)
-    return
+        exportBoneNum = exportBoneNum + 1
+        exportBoneNum = _CreateChildFbxBoneNode(fbxManager, childFbxNode, child, exportBoneNum)
+    return exportBoneNum
 
 global _cMinWeight
 _cMinWeight = 0.001
@@ -419,12 +420,15 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
     for key in removeList:
         exportBoneMap.pop(key, None)
     ## 生成FbxSkeleton
+    exportBoneNum = 0
     skelRootNode = None
     for key, value in exportBoneMap.items():
         skelRootNode = value
         fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
-        _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value)
+        exportBoneNum = exportBoneNum + 1
+        exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
         scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
+    print("[export] boneNum: %d" % exportBoneNum)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ## 更换骨骼节点名(执行放最后)
