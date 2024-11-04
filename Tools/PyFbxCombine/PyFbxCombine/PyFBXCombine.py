@@ -133,35 +133,35 @@ def _QuatToRollPitchYaw(quat: FbxQuaternion)->FbxDouble3:
     y = quat[1]
     z = quat[2]
     w = quat[3]
-    t0 = +2.0 * (w * x + y * z)
-    t1 = +1.0 - 2.0 * (x * x + y * y)
+    t0 = 2.0 * (w * x + y * z)
+    t1 = 1.0 - 2.0 * (x * x + y * y)
     roll_x = math.atan2(t0, t1) * 180.0/math.pi
     if math.fabs(roll_x) <= 0.000001:
         roll_x = 0
 
-    t2 = +2.0 * (w * y - z * x)
-    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = 2.0 * (w * y - z * x)
+    t2 = 1.0 if t2 > 1.0 else t2
     t2 = -1.0 if t2 < -1.0 else t2
     pitch_y = math.asin(t2) * 180.0/math.pi
     if math.fabs(pitch_y) <= 0.000001:
         pitch_y = 0
 
-    t3 = +2.0 * (w * z + x * y)
-    t4 = +1.0 - 2.0 * (y * y + z * z)
+    t3 = 2.0 * (w * z + x * y)
+    t4 = 1.0 - 2.0 * (y * y + z * z)
     yaw_z = math.atan2(t3, t4) * 180.0/math.pi
     if math.fabs(yaw_z) <= 0.000001:
         yaw_z = 0
 
     ret = FbxDouble3(roll_x, pitch_y, yaw_z)
-    return ret  # in radians
+    return ret
 
 def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
-    cr = math.cos(degrees[0] * math.pi / 180.0 * 0.5);
-    sr = math.sin(degrees[0] * math.pi / 180.0 * 0.5);
-    cp = math.cos(degrees[1] * math.pi / 180.0 * 0.5);
-    sp = math.sin(degrees[1] * math.pi / 180.0 * 0.5);
-    cy = math.cos(degrees[2] * math.pi / 180.0 * 0.5);
-    sy = math.sin(degrees[2] * math.pi / 180.0 * 0.5);
+    cr = math.cos(degrees[0] * math.pi / 180.0 * 0.5)
+    sr = math.sin(degrees[0] * math.pi / 180.0 * 0.5)
+    cp = math.cos(degrees[1] * math.pi / 180.0 * 0.5)
+    sp = math.sin(degrees[1] * math.pi / 180.0 * 0.5)
+    cy = math.cos(degrees[2] * math.pi / 180.0 * 0.5)
+    sy = math.sin(degrees[2] * math.pi / 180.0 * 0.5)
 
     x = sr * cp * cy - cr * sp * sy
     y = cr * sp * cy + sr * cp * sy
