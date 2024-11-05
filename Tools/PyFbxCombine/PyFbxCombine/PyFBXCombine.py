@@ -347,6 +347,31 @@ def _TransBoneNameAndChilds(boneNode):
         _TransBoneNameAndChilds(childNode)
     return
 
+def _BuildMatrix(node):
+    q: FbxQuaternion = _RollPitchYawToQuat(node["rotation"]) if _HasAttribute(node, "rotation") else FbxQuaternion(0, 0, 0, 1)
+    s: FbxDouble3 = node["scale"] if _HasAttribute(node, "scale") else FbxDouble3(1.0, 1.0, 1.0)
+    m: FbxMatrix = FbxMatrix()
+    pos = node["position"]
+    m.SetTQS(FbxVector4(pos[0], pos[1], pos[2]), q, FbxVector4(s[0], s[1], s[2]))
+    return m
+
+def _CalcWorldToLocalMatrixFromWorldSpace(node):
+    if _HasAttribute(node, "useLocalSpace"):
+        if not node["useLocalSpace"]:
+            m = _BuildMatrix(node)
+            m = m.Inverse()
+            node["worldToLocalMatrix"] = m
+    return
+
+def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
+    if _HasAttribute(node, "useLocalSpace"):
+        if not node["useLocalSpace"]:
+            _CalcWorldToLocalMatrixFromWorldSpace(node)
+            childs = node["childs"]
+            for child in childs:
+                _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(child)
+    return
+
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
     ## 骨骼KEY（字符串）和位置建立关系
@@ -370,10 +395,10 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
             boneRealName = boneNamesData[i]
         key = str(i)
         exportBoneMap[key] = {
-            "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]), # 位置(世界坐标系)
+            "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]), # 位置
             "childs": [],
             "name": str(i), ## 骨骼名称
-            "useLocalSpace": useLocalSpace,
+            "useLocalSpace": useLocalSpace, # 坐标系是否是局部坐标系
             "realName": boneRealName if hasBoneRealName else None,
             "rotation": FbxDouble3(boneRot[0], boneRot[1], boneRot[2]) if hasBoneRot else None, # 角度制(坐标系看useLocalSpace)
             "scale": FbxDouble3(boneScale[0], boneScale[1], boneScale[2]) if hasBoneScale else None, # 缩放(坐标系看useLocalSpace)
@@ -398,6 +423,10 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
             removeList.append(key)
     for key in removeList:
         exportBoneMap.pop(key, None)
+    ## 如果世界坐标系中，获得worldToLocalMatrix
+    print("generate worldToLocalMatrix")
+    for key, value in exportBoneMap.items():
+        _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(value)
     ## 生成FbxSkeleton
     exportBoneNum = 0
     skelRootNode = None
