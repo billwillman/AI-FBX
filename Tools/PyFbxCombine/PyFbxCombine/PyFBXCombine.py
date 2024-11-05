@@ -222,7 +222,7 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             fbxNode.LclTranslation.Set(offsetPos)
             '''
             m1: FbxMatrix = node["parent"]["worldToLocalMatrix"]
-            m2: FbxMatrix = _BuildMatrix(node)
+            m2: FbxMatrix = node["localToWorldMatrix"] if _HasAttribute(node, "localToWorldMatrix") else _BuildMatrix(node)
             m: FbxMatrix = m1 * m2
             localPos: FbxVector4 = FbxVector4()
             localQuat: FbxQuaternion = FbxQuaternion()
@@ -230,7 +230,7 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             localScale: FbxVector4 = FbxVector4()
             sign = m.GetElements(localPos, localQuat, localShear, localScale)
             fbxNode.LclTranslation.Set(FbxDouble3(localPos[0], localPos[1], localPos[2]))
-            #print("[new offset] ", localPos[0], localPos[1], localPos[2])
+            # print("[new offset] ", localPos[0], localPos[1], localPos[2])
             if _HasAttribute(node, "rotation"):
                 degrees = _QuatToRollPitchYaw(localQuat)
                 fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
