@@ -423,10 +423,11 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
             removeList.append(key)
     for key in removeList:
         exportBoneMap.pop(key, None)
-    ## 如果世界坐标系中，获得worldToLocalMatrix
-    print("generate worldToLocalMatrix")
-    for key, value in exportBoneMap.items():
-        _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(value)
+    if not useLocalSpace:
+        ## 如果世界坐标系中，获得worldToLocalMatrix
+        print("generate worldToLocalMatrix")
+        for key, value in exportBoneMap.items():
+            _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(value)
     ## 生成FbxSkeleton
     exportBoneNum = 0
     skelRootNode = None
