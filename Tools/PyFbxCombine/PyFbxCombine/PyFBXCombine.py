@@ -170,6 +170,7 @@ def _CalcWorldToLocalMatrixFromWorldSpace(node):
     if _HasAttribute(node, "useLocalSpace"):
         if not node["useLocalSpace"]:
             m = _BuildMatrix(node)
+            node["localToWorldMatrix"] = m
             m = m.Inverse()
             node["worldToLocalMatrix"] = m
     return
