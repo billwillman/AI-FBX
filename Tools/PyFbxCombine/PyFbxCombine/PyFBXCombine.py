@@ -464,13 +464,17 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
                  skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx"):
     if bUseSceneImport:
         manager, scene = FbxCommon.InitializeSdkObjects()
-        '''
+
         globalSetting: FbxGlobalSettings = scene.GetGlobalSettings()
+        '''
         axisSystem: FbxAxisSystem = FbxAxisSystem(FbxAxisSystem.EUpVector.eYAxis, FbxAxisSystem.EFrontVector.eParityEven,
                                                   FbxAxisSystem.ECoordSystem.eLeftHanded)
         globalSetting.SetOriginalUpAxis(axisSystem)
         globalSetting.SetAxisSystem(axisSystem)
         '''
+        globalSetting.SetOriginalSystemUnit(FbxSystemUnit.m)
+        globalSetting.SetSystemUnit(FbxSystemUnit.m)
+
         FbxCommon.LoadScene(manager, scene, objFileName)
         scene.GetRootNode().GetChild(0).GetChild(0).SetName("Character")
 
@@ -632,7 +636,7 @@ def Main():
         elif argv[1] == "gen-fbx":
             dir = str(argv[2])
             name = str(argv[3])
-            Generate_ObjAndNPY_ToFBX(dir, name, True)
+            Generate_ObjAndNPY_ToFBX(dir, name, False)
             return
         return
     '''
