@@ -225,16 +225,16 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             m: FbxMatrix = m1 * m2
             localPos: FbxVector4 = FbxVector4()
             localQuat: FbxQuaternion = FbxQuaternion()
-            localScale1: FbxVector4 = FbxVector4()
-            localScale2: FbxVector4 = FbxVector4()
-            sign = m.GetElements(localPos, localQuat, localScale1, localScale2)
+            localShear: FbxVector4 = FbxVector4()
+            localScale: FbxVector4 = FbxVector4()
+            sign = m.GetElements(localPos, localQuat, localShear, localScale)
             fbxNode.LclTranslation.Set(FbxDouble3(localPos[0], localPos[1], localPos[2]))
             #print("[new offset] ", localPos[0], localPos[1], localPos[2])
             if _HasAttribute(node, "rotation"):
                 degrees = _QuatToRollPitchYaw(localQuat)
                 fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
             if _HasAttribute(node, "scale"):
-                fbxNode.LclScaling.Set(FbxDouble3(localScale2[0] * sign, localScale2[1] * sign, localScale2[2] * sign))
+                fbxNode.LclScaling.Set(FbxDouble3(localScale[0] * sign, localScale[1] * sign, localScale[2] * sign))
 
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
