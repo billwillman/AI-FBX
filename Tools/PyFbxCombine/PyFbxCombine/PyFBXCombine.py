@@ -158,6 +158,31 @@ def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble
     subDegree: FbxDouble3 = _QuatToRollPitchYaw(subQuat)
     return subDegree
 
+def _BuildMatrix(node):
+    q: FbxQuaternion = _RollPitchYawToQuat(node["rotation"]) if _HasAttribute(node, "rotation") else FbxQuaternion(0, 0, 0, 1)
+    s: FbxDouble3 = node["scale"] if _HasAttribute(node, "scale") else FbxDouble3(1.0, 1.0, 1.0)
+    m: FbxMatrix = FbxMatrix()
+    pos = node["position"]
+    m.SetTQS(FbxVector4(pos[0], pos[1], pos[2]), q, FbxVector4(s[0], s[1], s[2]))
+    return m
+
+def _CalcWorldToLocalMatrixFromWorldSpace(node):
+    if _HasAttribute(node, "useLocalSpace"):
+        if not node["useLocalSpace"]:
+            m = _BuildMatrix(node)
+            m = m.Inverse()
+            node["worldToLocalMatrix"] = m
+    return
+
+def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
+    if _HasAttribute(node, "useLocalSpace"):
+        if not node["useLocalSpace"]:
+            _CalcWorldToLocalMatrixFromWorldSpace(node)
+            childs = node["childs"]
+            for child in childs:
+                _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(child)
+    return
+
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
     isRoot = not _HasAttribute(node, "parent")
@@ -188,19 +213,29 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
                 scale: FbxDouble3 = node["scale"]
                 fbxNode.LclScaling.Set(scale)
         else:
+            '''
             parentPosition: FbxDouble3 = node["parent"]["position"]
             position: FbxDouble3 = node["position"]
             offsetPos: FbxDouble3 = FbxDouble3(position[0] - parentPosition[0], position[1] - parentPosition[1], position[2] - parentPosition[2])
+            print("[offset] ", offsetPos[0], offsetPos[1], offsetPos[2])
             fbxNode.LclTranslation.Set(offsetPos)
+            '''
+            m1: FbxMatrix = node["parent"]["worldToLocalMatrix"]
+            m2: FbxMatrix = _BuildMatrix(node)
+            m: FbxMatrix = m1 * m2
+            localPos: FbxVector4 = FbxVector4()
+            localQuat: FbxQuaternion = FbxQuaternion()
+            localScale1: FbxVector4 = FbxVector4()
+            localScale2: FbxVector4 = FbxVector4()
+            sign = m.GetElements(localPos, localQuat, localScale1, localScale2)
+            fbxNode.LclTranslation.Set(FbxDouble3(localPos[0], localPos[1], localPos[2]))
+            #print("[new offset] ", localPos[0], localPos[1], localPos[2])
             if _HasAttribute(node, "rotation"):
-                parentRot: FbxDouble3 = node["parent"]["rotation"]
-                rot: FbxDouble3 = node["rotation"]
-                subDegree: FbxDouble3 = _RelativeDegree(parentRot, rot)
-                fbxNode.LclRotation.Set(subDegree)
+                degrees = _QuatToRollPitchYaw(localQuat)
+                fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
             if _HasAttribute(node, "scale"):
-                parentScale: FbxDouble3 = node["parent"]["scale"]
-                scale: FbxDouble3 = node["scale"]
-                fbxNode.LclScaling.Set(FbxDouble3(scale[0] - parentScale[0], scale[1] - parentScale[1], scale[2] - parentScale[2]))
+                fbxNode.LclScaling.Set(FbxDouble3(localScale2[0] * sign, localScale2[1] * sign, localScale2[2] * sign))
+
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
     return fbxNode
@@ -345,31 +380,6 @@ def _TransBoneNameAndChilds(boneNode):
         fbxBone.SetName(boneRealName)
     for childNode in boneNode["childs"]:
         _TransBoneNameAndChilds(childNode)
-    return
-
-def _BuildMatrix(node):
-    q: FbxQuaternion = _RollPitchYawToQuat(node["rotation"]) if _HasAttribute(node, "rotation") else FbxQuaternion(0, 0, 0, 1)
-    s: FbxDouble3 = node["scale"] if _HasAttribute(node, "scale") else FbxDouble3(1.0, 1.0, 1.0)
-    m: FbxMatrix = FbxMatrix()
-    pos = node["position"]
-    m.SetTQS(FbxVector4(pos[0], pos[1], pos[2]), q, FbxVector4(s[0], s[1], s[2]))
-    return m
-
-def _CalcWorldToLocalMatrixFromWorldSpace(node):
-    if _HasAttribute(node, "useLocalSpace"):
-        if not node["useLocalSpace"]:
-            m = _BuildMatrix(node)
-            m = m.Inverse()
-            node["worldToLocalMatrix"] = m
-    return
-
-def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
-    if _HasAttribute(node, "useLocalSpace"):
-        if not node["useLocalSpace"]:
-            _CalcWorldToLocalMatrixFromWorldSpace(node)
-            childs = node["childs"]
-            for child in childs:
-                _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(child)
     return
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
