@@ -383,6 +383,35 @@ def _TransBoneNameAndChilds(boneNode):
         _TransBoneNameAndChilds(childNode)
     return
 
+def _CreateNode(name, position: FbxDouble3, rotation: FbxDouble3, scale: FbxDouble3, useLocalSpace: bool):
+    ret = {
+        "position": FbxDouble3(position[0], position[1], position[2]),  # 位置
+        "childs": [],
+        "name": str(name),  ## 骨骼名称
+        "useLocalSpace": useLocalSpace,  # 坐标系是否是局部坐标系
+        "realName": str(name),
+        "rotation": FbxDouble3(rotation[0], rotation[1], rotation[2]) if str(type(rotation)) != "<class 'NoneType'>" else None,  # 角度制(坐标系看useLocalSpace)
+        "scale": FbxDouble3(scale[0], scale[1],
+                            scale[2]) if str(type(scale)) != "<class 'NoneType'>" else None,  # 缩放(坐标系看useLocalSpace)
+    }
+    return ret
+
+def _RemoveChildNode(childNode: dict):
+    if not _HasAttribute(childNode, "parent"):
+        return
+    parentNode = childNode["parent"]
+    parentNode["childs"].remove(childNode)
+    childNode.pop("parent")
+    return
+
+def _AddChildNode(parentNode, childNode):
+    if childNode in parentNode["childs"]:
+        return
+    _RemoveChildNode(childNode)
+    parentNode["childs"].append(childNode)
+    childNode["parent"] = parentNode
+    return
+
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
     ## 骨骼KEY（字符串）和位置建立关系
