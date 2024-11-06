@@ -461,16 +461,17 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
     skelRootNode = None
     for key, value in exportBoneMap.items():
         skelRootNode = value
-        fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
-        exportBoneNum = exportBoneNum + 1
-        exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
-        scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
+        if fbxManager != None and scene != None:
+            fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
+            exportBoneNum = exportBoneNum + 1
+            exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
+            scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     print("[export] boneNum: %d" % exportBoneNum)
-    return exportBoneMap, skelRootNode
+    return exportBoneMap, skelRootNode, exportBoneNum
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
-    exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
+    exportBoneMap, skelRootNode, _ = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ## 更换骨骼节点名(执行放最后)
