@@ -710,7 +710,7 @@ class FQuat(LockedLiteral):
         a = FQuat.FromAxis(vector.x, Vector3.right())
         b = FQuat.FromAxis(vector.y, Vector3.up())
         c = FQuat.FromAxis(vector.z, Vector3.forward())
-        return b * a * c
+        return b * a * c ## YXZ
 
     @property
     def eulerAngles(self)->Vector3:
