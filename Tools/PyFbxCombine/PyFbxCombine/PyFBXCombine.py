@@ -6,7 +6,6 @@ import os
 import numpy as np
 from objloader import Obj
 from fbx import *
-from scipy.spatial.transform import Rotation as R
 import FbxCommon
 from operator import index
 from test.test_importlib.import_.test_fromlist import ReturnValue
