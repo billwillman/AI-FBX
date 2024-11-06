@@ -11,6 +11,7 @@ import FbxCommon
 from operator import index
 from test.test_importlib.import_.test_fromlist import ReturnValue
 from functools import cmp_to_key
+import Quaternion
 
 
 def _HasAttribute(obj, name)->bool:
@@ -122,40 +123,30 @@ def _NormalDegree(degree: float)->float:
         degree = degree + 360.0
     return degree
 
-def _CreateQuatFronAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
+def _CreateQuatFromAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
     angle: float = degree * math.pi / 180.0 / 2.0
     theta_sin = math.sin(angle)
     theta_cos = math.cos(angle)
     ret: FbxQuaternion = FbxQuaternion(axis[0] * theta_sin, axis[1] * theta_sin, axis[2] * theta_sin, theta_cos)
     return ret
 
+def _QuatMul(a: FbxQuaternion, b: FbxQuaternion)->FbxQuaternion:
+    tempx = a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1]
+    tempy = a[3] * b[1] + a[1] * b[3] + a[2] * b[0] - a[0] * b[2]
+    tempz = a[3] * b[2] + a[2] * b[3] + a[0] * b[1] - a[1] * b[0]
+    tempw = a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
+    ret = FbxQuaternion(tempx, tempy, tempz, tempw)
+    return ret
+
 def _QuatToRollPitchYaw(quat: FbxQuaternion)->FbxDouble3:
-    rr = R.from_quat([quat[0], quat[1], quat[2], quat[3]])
-    ret = rr.as_euler("zxy", True)
-    return FbxDouble3(ret[1], ret[0], ret[2])
+    ## __init__(self, w, x, y, z):
+    q = Quaternion.FQuat(quat[3], quat[0], quat[1], quat[2])
+    ret = q.eulerAngles
+    return FbxDouble3(ret[0], ret[1], ret[2])
 
 def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
-    '''
-    cr = math.cos(degrees[0] * math.pi / 180.0 * 0.5)
-    sr = math.sin(degrees[0] * math.pi / 180.0 * 0.5)
-    cp = math.cos(degrees[1] * math.pi / 180.0 * 0.5)
-    sp = math.sin(degrees[1] * math.pi / 180.0 * 0.5)
-    cy = math.cos(degrees[2] * math.pi / 180.0 * 0.5)
-    sy = math.sin(degrees[2] * math.pi / 180.0 * 0.5)
-
-    x = sr * cp * cy - cr * sp * sy
-    y = cr * sp * cy + sr * cp * sy
-    z = cr * cp * sy - sr * sp * cy
-    w = cr * cp * cy + sr * sp * sy
-    ret = FbxQuaternion(x, y, z, w)
-    return ret
-    '''
-    r = R.from_euler("zxy", [degrees[2], degrees[0], degrees[1]], True)
-    q = r.as_quat()
-    ret: FbxQuaternion = FbxQuaternion(q[0] if math.fabs(q[0]) >= 0.000001 else 0,
-                                       q[1] if math.fabs(q[1]) >= 0.000001 else 0,
-                                       q[2] if math.fabs(q[2]) >= 0.000001 else 0,
-                                       q[3] if math.fabs(q[3]) >= 0.000001 else 0)
+    q = Quaternion.FQuat.Euler(Quaternion.Vector3(degrees[0], degrees[1], degrees[2]))
+    ret = FbxQuaternion(q[1], q[2], q[3], q[0])
     return ret
 
 
