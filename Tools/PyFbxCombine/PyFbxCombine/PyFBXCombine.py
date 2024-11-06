@@ -122,22 +122,6 @@ def _NormalDegree(degree: float)->float:
     elif degree < -180.0:
         degree = degree + 360.0
     return degree
-
-def _CreateQuatFromAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
-    angle: float = degree * math.pi / 180.0 / 2.0
-    theta_sin = math.sin(angle)
-    theta_cos = math.cos(angle)
-    ret: FbxQuaternion = FbxQuaternion(axis[0] * theta_sin, axis[1] * theta_sin, axis[2] * theta_sin, theta_cos)
-    return ret
-
-def _QuatMul(a: FbxQuaternion, b: FbxQuaternion)->FbxQuaternion:
-    tempx = a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1]
-    tempy = a[3] * b[1] + a[1] * b[3] + a[2] * b[0] - a[0] * b[2]
-    tempz = a[3] * b[2] + a[2] * b[3] + a[0] * b[1] - a[1] * b[0]
-    tempw = a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
-    ret = FbxQuaternion(tempx, tempy, tempz, tempw)
-    return ret
-
 def _QuatToRollPitchYaw(quat: FbxQuaternion)->FbxDouble3:
     ## __init__(self, w, x, y, z):
     q = Quaternion.FQuat(quat[3], quat[0], quat[1], quat[2])
@@ -413,13 +397,14 @@ def _AddChildNode(parentNode, childNode):
     childNode["parent"] = parentNode
     return
 
-def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
-                         boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
+
+##### 生成骨骼拓扑结构
+def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
     ## 骨骼KEY（字符串）和位置建立关系
     boneNum = len(bonePosDatas)
     if boneNum <= 0:
         return
-    exportBoneMap = {} ## 骨骼名对应位置
+    exportBoneMap = {}  ## 骨骼名对应位置
     for i in range(0, boneNum, 1):
         bonePos = bonePosDatas[i]
         boneRot = None
@@ -436,13 +421,15 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
             boneRealName = boneNamesData[i]
         key = str(i)
         exportBoneMap[key] = {
-            "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]), # 位置
+            "position": FbxDouble3(bonePos[0], bonePos[1], bonePos[2]),  # 位置
             "childs": [],
-            "name": str(i), ## 骨骼名称
-            "useLocalSpace": useLocalSpace, # 坐标系是否是局部坐标系
+            "name": str(i),  ## 骨骼名称
+            "useLocalSpace": useLocalSpace,  # 坐标系是否是局部坐标系
             "realName": boneRealName if hasBoneRealName else None,
-            "rotation": FbxDouble3(boneRot[0], boneRot[1], boneRot[2]) if hasBoneRot else None, # 角度制(坐标系看useLocalSpace)
-            "scale": FbxDouble3(boneScale[0], boneScale[1], boneScale[2]) if hasBoneScale else None, # 缩放(坐标系看useLocalSpace)
+            "rotation": FbxDouble3(boneRot[0], boneRot[1], boneRot[2]) if hasBoneRot else None,
+            # 角度制(坐标系看useLocalSpace)
+            "scale": FbxDouble3(boneScale[0], boneScale[1], boneScale[2]) if hasBoneScale else None,
+            # 缩放(坐标系看useLocalSpace)
         }
     ##### 拓扑关系
     boneLinkNum = len(boneLinkDatas)
@@ -479,6 +466,11 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
         exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
         scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     print("[export] boneNum: %d" % exportBoneNum)
+    return exportBoneMap, skelRootNode
+
+def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
+                         boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
+    exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ## 更换骨骼节点名(执行放最后)
@@ -660,16 +652,10 @@ def Test():
     #a = _CreateNode("a", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-89.98, 0, 0), FbxDouble3(1, 1, 1), False)
     b = _CreateNode("b", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-90, 0, 180), FbxDouble3(1, 1, 1), False)
     c = _CreateNode("c", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-97.512, 90.152, 269.847), FbxDouble3(1, 1, 1), False)
-    q: FbxQuaternion = _RollPitchYawToQuat(FbxDouble3(-4.458028, -10.86612, -23.77408))
-    print("q=", q[0], q[1], q[2], q[3])
-    degrees = _QuatToRollPitchYaw(q)
-    print(degrees[0], degrees[1], degrees[2])
-    return
     #_AddChildNode(a, b)
     _AddChildNode(b, c)
     _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(b)
     mm: FbxMatrix = b["worldToLocalMatrix"]
-    print(mm.ToString())
     m1: FbxMatrix = c["parent"]["worldToLocalMatrix"]
     m2: FbxMatrix = c["localToWorldMatrix"]
     m: FbxMatrix = m1 * m2
@@ -705,8 +691,6 @@ def Main():
     print(subRot[0], subRot[1], subRot[2])
     return
     '''
-    Test()
-    return
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
