@@ -453,7 +453,7 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
         exportBoneMap.pop(key, None)
     if not useLocalSpace:
         ## 如果世界坐标系中，获得worldToLocalMatrix
-        print("generate worldToLocalMatrix")
+        print("generate worldToLocalMatrix...")
         for key, value in exportBoneMap.items():
             _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(value)
     ## 生成FbxSkeleton
