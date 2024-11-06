@@ -467,11 +467,11 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
             exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
             scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     print("[export] boneNum: %d" % exportBoneNum)
-    return exportBoneMap, skelRootNode, exportBoneNum
+    return exportBoneMap, skelRootNode
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
-    exportBoneMap, skelRootNode, _ = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
+    exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ## 更换骨骼节点名(执行放最后)
@@ -647,6 +647,61 @@ def Generate_ObjAndNPY_ToFBX(dir, name, useLocalSpace):
     ## BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, boneNamesFileName, useLocalSpace, outFileName = "out.fbx")
     BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName,
                  boneLinkeFileName, boneNamesFileName, useLocalSpace)
+    return
+
+## 骨骼局部位置，旋转，缩放。写入文件
+def Write_World_Convert_RelativeBoneDataToJson(dir, name):
+    objFileName = "%s/%s.obj" % (dir, name)
+    objFileName = os.path.abspath(objFileName)
+    if not os.path.exists(objFileName):
+        return
+    vertexBoneFileName = "%s/%s_mesh.npy" % (dir, name)
+    vertexBoneFileName = os.path.abspath(vertexBoneFileName)
+    if not os.path.exists(vertexBoneFileName):
+        return
+    boneLocFileName = "%s/%s_joints.npy" % (dir, name)
+    boneLocFileName = os.path.abspath(boneLocFileName)
+    if not os.path.exists(boneLocFileName):
+        return
+    boneLinkeFileName = "%s/%s_parents.npy" % (dir, name)
+    boneLinkeFileName = os.path.abspath(boneLinkeFileName)
+    if not os.path.exists(boneLinkeFileName):
+        return
+    boneRotFileName = "%s/%s_rots.npy" % (dir, name)
+    boneRotFileName = os.path.abspath(boneRotFileName)
+    if not os.path.exists(boneRotFileName):
+        boneRotFileName = None
+    boneScaleFileName = "%s/%s_scales.npy" % (dir, name)
+    boneScaleFileName = os.path.abspath(boneScaleFileName)
+    if not os.path.exists(boneScaleFileName):
+        boneScaleFileName = None
+    boneNamesFileName = "%s/%s_names.npy" % (dir, name)
+    boneNamesFileName = os.path.abspath(boneNamesFileName)
+    if not os.path.exists(boneNamesFileName):
+        boneNamesFileName = None
+
+    ############# 读取数据
+    ## vertex骨骼信息
+    vertexBoneDatas = np.load(vertexBoneFileName)
+    ## 骨骼关联信息
+    boneLinkDatas = np.load(boneLinkeFileName)
+    ## 骨骼位置信息
+    boneLocDatas = np.load(boneLocFileName)
+    ## 骨骼旋转信息
+    boneRotDatas = None
+    if boneRotFileName != None:
+        boneRotDatas = np.load(boneRotFileName)
+    ## 骨骼缩放信息
+    boneScaleDatas = None
+    if boneScaleFileName != None:
+        boneScaleDatas = np.load(boneScaleFileName)
+    ## 骨骼名称
+    boneNamesData = None
+    if boneNamesFileName != None:
+        boneNamesData = np.load(boneNamesFileName)
+    ## 拓扑结构
+    exportBoneMap, skelRootNode = _BuildBoneMap(None, None, vertexBoneDatas, boneRotDatas, boneScaleDatas, boneLinkDatas, boneNamesData,
+                  False)
     return
 
 def Test():
