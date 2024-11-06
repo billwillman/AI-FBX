@@ -132,9 +132,10 @@ def _CreateQuatFronAxisDegree(axis: FbxDouble3, degree: float)->FbxQuaternion:
 def _QuatToRollPitchYaw(quat: FbxQuaternion)->FbxDouble3:
     rr = R.from_quat([quat[0], quat[1], quat[2], quat[3]])
     ret = rr.as_euler("zxy", True)
-    return FbxDouble3(ret[1], ret[2], ret[0])
+    return FbxDouble3(ret[1], ret[0], ret[2])
 
 def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
+    '''
     cr = math.cos(degrees[0] * math.pi / 180.0 * 0.5)
     sr = math.sin(degrees[0] * math.pi / 180.0 * 0.5)
     cp = math.cos(degrees[1] * math.pi / 180.0 * 0.5)
@@ -148,6 +149,15 @@ def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
     w = cr * cp * cy + sr * sp * sy
     ret = FbxQuaternion(x, y, z, w)
     return ret
+    '''
+    r = R.from_euler("zxy", [degrees[2], degrees[0], degrees[1]], True)
+    q = r.as_quat()
+    ret: FbxQuaternion = FbxQuaternion(q[0] if math.fabs(q[0]) >= 0.000001 else 0,
+                                       q[1] if math.fabs(q[1]) >= 0.000001 else 0,
+                                       q[2] if math.fabs(q[2]) >= 0.000001 else 0,
+                                       q[3] if math.fabs(q[3]) >= 0.000001 else 0)
+    return ret
+
 
 def _RelativeDegree(parentDegree: FbxDouble3, currDegree: FbxDouble3)->FbxDouble3:
     parentQuat: FbxQuaternion = _RollPitchYawToQuat(FbxDouble3(-parentDegree[0], -parentDegree[1], -parentDegree[2]))
@@ -655,6 +665,35 @@ def Generate_ObjAndNPY_ToFBX(dir, name, useLocalSpace):
                  boneLinkeFileName, boneNamesFileName, useLocalSpace)
     return
 
+def Test():
+    #a = _CreateNode("a", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-89.98, 0, 0), FbxDouble3(1, 1, 1), False)
+    b = _CreateNode("b", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-90, 0, 180), FbxDouble3(1, 1, 1), False)
+    c = _CreateNode("c", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-97.512, 90.152, 269.847), FbxDouble3(1, 1, 1), False)
+    q: FbxQuaternion = _RollPitchYawToQuat(FbxDouble3(-4.458028, -10.86612, -23.77408))
+    print("q=", q[0], q[1], q[2], q[3])
+    degrees = _QuatToRollPitchYaw(q)
+    print(degrees[0], degrees[1], degrees[2])
+    return
+    #_AddChildNode(a, b)
+    _AddChildNode(b, c)
+    _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(b)
+    mm: FbxMatrix = b["worldToLocalMatrix"]
+    print(mm.ToString())
+    m1: FbxMatrix = c["parent"]["worldToLocalMatrix"]
+    m2: FbxMatrix = c["localToWorldMatrix"]
+    m: FbxMatrix = m1 * m2
+    localPos: FbxVector4 = FbxVector4()
+    localQuat: FbxQuaternion = FbxQuaternion()
+    localShear: FbxVector4 = FbxVector4()
+    localScale: FbxVector4 = FbxVector4()
+    sign = m.GetElements(localPos, localQuat, localShear, localScale)
+    localScale *= sign
+    print("localPos:", localPos[0], localPos[1], localPos[2])
+    localRot = _QuatToRollPitchYaw(localQuat)
+    print("localRot:", localRot[0], localRot[1], localRot[2])
+    print("local Scale", localScale[0], localScale[1], localScale[2])
+    return
+
 def Main():
     argv = sys.argv
     if len(argv) >= 4:
@@ -675,6 +714,8 @@ def Main():
     print(subRot[0], subRot[1], subRot[2])
     return
     '''
+    Test()
+    return
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
