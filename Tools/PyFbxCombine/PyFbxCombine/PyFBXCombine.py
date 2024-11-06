@@ -164,7 +164,13 @@ def GetLocalInfo(node):
                 localShear: FbxVector4 = FbxVector4()
                 localScale: FbxVector4 = FbxVector4()
                 sign = m.GetElements(localPos, localQuat, localShear, localScale)
-                return FbxDouble3(localPos[0], localPos[1], localPos[2]), _QuatToRollPitchYaw(localQuat), FbxDouble3(localScale[0] * sign, localScale[1] * sign, localScale[2] * sign)
+                x = localPos[0] if math.fabs(localPos[0]) > 0.000001 else 0
+                y = localPos[1] if math.fabs(localPos[1]) > 0.000001 else 0
+                z = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
+                sx = localScale[0] if math.fabs(localScale[0]) > 0.000001 else 0
+                sy = localScale[1] if math.fabs(localScale[1]) > 0.000001 else 0
+                sz = localScale[2] if math.fabs(localScale[2]) > 0.000001 else 0
+                return FbxDouble3(x, y, z), _QuatToRollPitchYaw(localQuat), FbxDouble3(sx * sign, sy * sign, sz * sign)
             else:
                 return node["position"], node["rotation"], node["scale"]
     return
@@ -730,23 +736,13 @@ def Write_World_Convert_RelativeBoneDataToJson(dir, name):
 
 def Test():
     #a = _CreateNode("a", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-89.98, 0, 0), FbxDouble3(1, 1, 1), False)
-    b = _CreateNode("b", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-90, 0, 180), FbxDouble3(1, 1, 1), False)
-    c = _CreateNode("c", FbxDouble3(-4.458028, -10.86612, -23.77408), FbxDouble3(-97.512, 90.152, 269.847), FbxDouble3(1, 1, 1), False)
+    b = _CreateNode("b", FbxDouble3(0, 0, 0), FbxDouble3(-90, 0, 180), FbxDouble3(1, 1, 1), False)
+    c = _CreateNode("c", FbxDouble3(100, 0, 0), FbxDouble3(90, 0, 0), FbxDouble3(1, 1, 1), False)
     #_AddChildNode(a, b)
     _AddChildNode(b, c)
     _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(b)
-    mm: FbxMatrix = b["worldToLocalMatrix"]
-    m1: FbxMatrix = c["parent"]["worldToLocalMatrix"]
-    m2: FbxMatrix = c["localToWorldMatrix"]
-    m: FbxMatrix = m1 * m2
-    localPos: FbxVector4 = FbxVector4()
-    localQuat: FbxQuaternion = FbxQuaternion()
-    localShear: FbxVector4 = FbxVector4()
-    localScale: FbxVector4 = FbxVector4()
-    sign = m.GetElements(localPos, localQuat, localShear, localScale)
-    localScale *= sign
+    localPos, localRot, localScale = GetLocalInfo(c)
     print("localPos:", localPos[0], localPos[1], localPos[2])
-    localRot = _QuatToRollPitchYaw(localQuat)
     print("localRot:", localRot[0], localRot[1], localRot[2])
     print("local Scale", localScale[0], localScale[1], localScale[2])
     return
@@ -771,6 +767,8 @@ def Main():
     print(subRot[0], subRot[1], subRot[2])
     return
     '''
+    Test()
+    return
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
