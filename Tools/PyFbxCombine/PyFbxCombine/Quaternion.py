@@ -675,7 +675,7 @@ class FQuat(LockedLiteral):
             math.atan2(v.x, v.z) * RAD_TO_DEG,
             Vector3.up())
         b = FQuat.FromAxis(
-            math.atan2(-v.y, math.Sqrt(v.z ** 2 + v.x ** 2)) * RAD_TO_DEG,
+            math.atan2(-v.y, math.sqrt(v.z ** 2 + v.x ** 2)) * RAD_TO_DEG,
             Vector3.right())
         return a * b
 
@@ -717,32 +717,28 @@ class FQuat(LockedLiteral):
         """Gets the Euler angles of the quaternion"""
         s = self.w ** 2 + self.x ** 2 + self.y ** 2 + self.z ** 2
         r23 = 2 * (self.w * self.x - self.y * self.z)
-        xx = 0
-        yy = 0
-        zz = 0
         if r23 > 0.999999 * s:
-            xx = math.pi / 2
-            yy = 2 * math.atan2(self.y, self.x)
-            zz = 0
+            x = math.pi / 2
+            y = 2 * math.atan2(self.y, self.x)
+            z = 0
         elif r23 < -0.999999 * s:
-            xx = -math.pi / 2
-            yy = -2 * math.atan2(self.y, self.x)
-            zz = 0
+            x = -math.pi / 2
+            y = -2 * math.atan2(self.y, self.x)
+            z = 0
         else:
-            xx = math.asin(r23)
+            x = math.asin(r23)
             r13 = 2 * (self.w * self.y + self.z * self.x) / s
             r33 = 1 - 2 * (self.x ** 2 + self.y ** 2) / s
             r21 = 2 * (self.w * self.z + self.x * self.y) / s
             r22 = 1 - 2 * (self.x ** 2 + self.z ** 2) / s
-            yy = math.atan2(r13, r33)
-            zz = math.atan2(r21, r22)
+            y = math.atan2(r13, r33)
+            z = math.atan2(r21, r22)
 
-        ret = [xx, yy, zz]
-        RAD_TO_DEG = 180.0 / math.pi
+        euler = [x, y, z]
+        RAD_TO_DEG = 180.0/math.pi
         for i in range(3):
-            ret[i] = (ret[i] * RAD_TO_DEG + 180) % 360 - 180
-        ret = Vector3(ret)
-        return ret
+            euler[i] = (euler[i] * RAD_TO_DEG + 180) % 360 - 180
+        return Vector3(euler)
 
     @staticmethod
     def identity():
