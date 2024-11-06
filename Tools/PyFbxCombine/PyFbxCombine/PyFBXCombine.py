@@ -151,6 +151,24 @@ def _BuildMatrix(node):
     m.SetTQS(FbxVector4(pos[0], pos[1], pos[2]), q, FbxVector4(s[0], s[1], s[2]))
     return m
 
+def GetLocalInfo(node):
+    if _HasAttribute(node, "useLocalSpace"):
+        if not node["useLocalSpace"]:
+            if _HasAttribute(node, "parent"):
+                parentNode = node["parent"]
+                m1: FbxMatrix = parentNode["worldToLocalMatrix"]
+                m2: FbxMatrix = node["localToWorldMatrix"]
+                m: FbxMatrix = m1 * m2
+                localPos: FbxVector4 = FbxVector4()
+                localQuat: FbxQuaternion = FbxQuaternion()
+                localShear: FbxVector4 = FbxVector4()
+                localScale: FbxVector4 = FbxVector4()
+                sign = m.GetElements(localPos, localQuat, localShear, localScale)
+                return FbxDouble3(localPos[0], localPos[1], localPos[2]), _QuatToRollPitchYaw(localQuat), FbxDouble3(localScale[0] * sign, localScale[1] * sign, localScale[2] * sign)
+            else:
+                return node["position"], node["rotation"], node["scale"]
+    return
+
 def _CalcWorldToLocalMatrixFromWorldSpace(node):
     if _HasAttribute(node, "useLocalSpace"):
         if not node["useLocalSpace"]:
@@ -396,7 +414,6 @@ def _AddChildNode(parentNode, childNode):
     parentNode["childs"].append(childNode)
     childNode["parent"] = parentNode
     return
-
 
 ##### 生成骨骼拓扑结构
 def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
@@ -700,8 +717,15 @@ def Write_World_Convert_RelativeBoneDataToJson(dir, name):
     if boneNamesFileName != None:
         boneNamesData = np.load(boneNamesFileName)
     ## 拓扑结构
-    exportBoneMap, skelRootNode = _BuildBoneMap(None, None, vertexBoneDatas, boneRotDatas, boneScaleDatas, boneLinkDatas, boneNamesData,
+    exportBoneMap, skelRootNode = _BuildBoneMap(None, None, boneLocDatas, boneRotDatas, boneScaleDatas, boneLinkDatas, boneNamesData,
                   False)
+
+    boneNum = len(boneLocDatas)
+    boneLst = list(boneNum)
+
+    for key, value in exportBoneMap.items():
+        return
+
     return
 
 def Test():
