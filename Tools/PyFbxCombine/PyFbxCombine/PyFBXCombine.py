@@ -741,10 +741,30 @@ def Write_World_Convert_RelativeBoneDataToJson(dir, name):
     ## 转化成boneList
     for _, value in exportBoneMap.items():
         _BoneAndChild_To_Map(value, boneMap)
-        return
     boneList = []
     for idx in range(0, boneNum):
         boneList.append(boneMap[idx])
+
+    exportBoneList = []
+    for bone in boneList:
+        localPos, localRot, localScale = GetLocalInfo(bone)
+        d = {
+            "name": bone["realName"] if _HasAttribute(bone, "realName") else bone["name"],
+            "index": bone["name"],
+            "parent": bone["parent"]["name"] if _HasAttribute(bone, "parent") else -1,
+            "localPos": [localPos[0], localPos[1], localPos[2]],
+            "localRot": [localRot[0], localRot[1], localRot[2]],
+            "localScale": [localScale[0], localScale[1], localScale[2]],
+        }
+        exportBoneList.append(d)
+
+    str = json.dumps(exportBoneList, ensure_ascii=True, indent=4)
+    outFileName = "%s/%s_local.json" % (dir, name)
+    f = open(outFileName, "w")
+    try:
+        f.write(str)
+    finally:
+        f.close()
     return
 
 def Test():
