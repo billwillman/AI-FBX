@@ -511,7 +511,7 @@ class Vector3(Vector):
 ########################################################################################################################
 
 
-class Quaternion(LockedLiteral):
+class FQuat(LockedLiteral):
     """
     Class to represent a unit quaternion, also known as a versor.
 
@@ -535,9 +535,9 @@ class Quaternion(LockedLiteral):
         self._lock()
 
     def __repr__(self):
-        return f"Quaternion({', '.join(map(conv, self))})"
+        return f"FQuat({', '.join(map(conv, self))})"
     def __str__(self):
-        return f"Quaternion({', '.join(map(conv, self))})"
+        return f"FQuat({', '.join(map(conv, self))})"
 
     def __getitem__(self, i):
         if i == 0:
@@ -578,25 +578,25 @@ class Quaternion(LockedLiteral):
             return True
 
     def __mul__(self, other):
-        if isinstance(other, Quaternion):
+        if isinstance(other, FQuat):
             w = self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z
             x = self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y
             y = self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x
             z = self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
-            return Quaternion(w, x, y, z)
+            return FQuat(w, x, y, z)
         elif isinstance(other, (int, float)):
             angle, axis = self.angleAxisPair
-            return Quaternion.FromAxis((angle * other) % 360, axis)
+            return FQuat.FromAxis((angle * other) % 360, axis)
         return NotImplemented
 
     def __truediv__(self, other):
         if isinstance(other, (int, float)):
             angle, axis = self.angleAxisPair
-            return Quaternion.FromAxis((angle / other) % 360, axis)
+            return FQuat.FromAxis((angle / other) % 360, axis)
         return NotImplemented
 
     def __sub__(self, other):
-        if isinstance(other, Quaternion):
+        if isinstance(other, FQuat):
             diff = (self * other.conjugate).normalized()
             return QuaternionDiff(*diff)
 
@@ -613,7 +613,7 @@ class Quaternion(LockedLiteral):
             A deep copy
 
         """
-        return Quaternion(self.w, self.x, self.y, self.z)
+        return FQuat(self.w, self.x, self.y, self.z)
 
     def normalized(self):
         """
@@ -629,18 +629,18 @@ class Quaternion(LockedLiteral):
         length = math.sqrt(self.w ** 2 + self.x ** 2 +
                             self.y ** 2 + self.z ** 2)
         if length:
-            return Quaternion(self.w / length, self.x / length, self.y / length, self.z / length)
+            return FQuat(self.w / length, self.x / length, self.y / length, self.z / length)
         else:
-            return Quaternion.identity()
+            return FQuat.identity()
 
     @property
     def conjugate(self):
         """The conjugate of a unit quaternion"""
-        return Quaternion(self.w, -self.x, -self.y, -self.z)
+        return FQuat(self.w, -self.x, -self.y, -self.z)
 
     def RotateVector(self, vector):
         """Rotate a vector by the quaternion"""
-        other = Quaternion(0, *vector)
+        other = FQuat(0, *vector)
         return Vector3(self * other * self.conjugate)
 
     @staticmethod
@@ -660,21 +660,21 @@ class Quaternion(LockedLiteral):
         axis = a.normalized()
         cos = math.cos(angle / 2.0 * DEG_TO_RAD)
         sin = math.sin(angle / 2.0 * DEG_TO_RAD)
-        return Quaternion(cos, axis.x * sin, axis.y * sin, axis.z * sin)
+        return FQuat(cos, axis.x * sin, axis.y * sin, axis.z * sin)
 
     @staticmethod
     def Between(v1, v2):
-        a = Quaternion.FromDir(v1).conjugate
-        b = Quaternion.FromDir(v2)
+        a = FQuat.FromDir(v1).conjugate
+        b = FQuat.FromDir(v2)
         return a * b
 
     @staticmethod
     def FromDir(v):
         RAD_TO_DEG = 180.0/math.pi
-        a = Quaternion.FromAxis(
+        a = FQuat.FromAxis(
             math.atan2(v.x, v.z) * RAD_TO_DEG,
             Vector3.up())
-        b = Quaternion.FromAxis(
+        b = FQuat.FromAxis(
             math.atan2(-v.y, math.Sqrt(v.z ** 2 + v.x ** 2)) * RAD_TO_DEG,
             Vector3.right())
         return a * b
@@ -707,44 +707,47 @@ class Quaternion(LockedLiteral):
             Generated quaternion
 
         """
-        a = Quaternion.FromAxis(vector.x, Vector3.right())
-        b = Quaternion.FromAxis(vector.y, Vector3.up())
-        c = Quaternion.FromAxis(vector.z, Vector3.forward())
+        a = FQuat.FromAxis(vector.x, Vector3.right())
+        b = FQuat.FromAxis(vector.y, Vector3.up())
+        c = FQuat.FromAxis(vector.z, Vector3.forward())
         return b * a * c
 
     @property
-    def eulerAngles(self):
+    def eulerAngles(self)->Vector3:
         """Gets the Euler angles of the quaternion"""
         s = self.w ** 2 + self.x ** 2 + self.y ** 2 + self.z ** 2
         r23 = 2 * (self.w * self.x - self.y * self.z)
+        xx = 0
+        yy = 0
+        zz = 0
         if r23 > 0.999999 * s:
-            x = math.pi / 2
-            y = 2 * math.atan2(self.y, self.x)
-            z = 0
+            xx = math.pi / 2
+            yy = 2 * math.atan2(self.y, self.x)
+            zz = 0
         elif r23 < -0.999999 * s:
-            x = -math.pi / 2
-            y = -2 * math.atan2(self.y, self.x)
-            z = 0
+            xx = -math.pi / 2
+            yy = -2 * math.atan2(self.y, self.x)
+            zz = 0
         else:
-            x = math.asin(r23)
+            xx = math.asin(r23)
             r13 = 2 * (self.w * self.y + self.z * self.x) / s
             r33 = 1 - 2 * (self.x ** 2 + self.y ** 2) / s
             r21 = 2 * (self.w * self.z + self.x * self.y) / s
             r22 = 1 - 2 * (self.x ** 2 + self.z ** 2) / s
-            y = math.atan2(r13, r33)
-            z = math.atan2(r21, r22)
+            yy = math.atan2(r13, r33)
+            zz = math.atan2(r21, r22)
 
-        euler = [x, y, z]
+        ret = [xx, yy, zz]
         RAD_TO_DEG = 180.0 / math.pi
         for i in range(3):
-            euler[i] = (euler[i] * RAD_TO_DEG + 180) % 360 - 180
-        ret = Vector3(euler)
+            ret[i] = (ret[i] * RAD_TO_DEG + 180) % 360 - 180
+        ret = Vector3(ret)
         return ret
 
     @staticmethod
     def identity():
         """Identity quaternion representing no rotation"""
-        return Quaternion(1, 0, 0, 0)
+        return FQuat(1, 0, 0, 0)
 
 class QuaternionDiff:
     def __init__(self, w, x, y, z):
