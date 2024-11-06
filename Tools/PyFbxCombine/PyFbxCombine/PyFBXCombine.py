@@ -800,8 +800,8 @@ def Main():
     print(subRot[0], subRot[1], subRot[2])
     return
     '''
-    Write_World_Convert_RelativeBoneDataToJson("./example_json", "HuMan")
-    return
+    #Write_World_Convert_RelativeBoneDataToJson("./example_json", "HuMan")
+    #return
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
