@@ -672,12 +672,22 @@ def Generate_ObjAndNPY_ToFBX(dir, name, useLocalSpace):
                  boneLinkeFileName, boneNamesFileName, useLocalSpace)
     return
 
+def _BoneAndChild_To_Map(bone, boneMap):
+    index = int(bone["name"])
+    boneMap[index] = bone
+    childs = bone["childs"]
+    for child in childs:
+        _BoneAndChild_To_Map(child, boneMap)
+    return
+
 ## 骨骼局部位置，旋转，缩放。写入文件
 def Write_World_Convert_RelativeBoneDataToJson(dir, name):
+    '''
     objFileName = "%s/%s.obj" % (dir, name)
     objFileName = os.path.abspath(objFileName)
     if not os.path.exists(objFileName):
         return
+    '''
     vertexBoneFileName = "%s/%s_mesh.npy" % (dir, name)
     vertexBoneFileName = os.path.abspath(vertexBoneFileName)
     if not os.path.exists(vertexBoneFileName):
@@ -727,11 +737,14 @@ def Write_World_Convert_RelativeBoneDataToJson(dir, name):
                   False)
 
     boneNum = len(boneLocDatas)
-    boneLst = list(boneNum)
-
-    for key, value in exportBoneMap.items():
+    boneMap = {}
+    ## 转化成boneList
+    for _, value in exportBoneMap.items():
+        _BoneAndChild_To_Map(value, boneMap)
         return
-
+    boneList = []
+    for idx in range(0, boneNum):
+        boneList.append(boneMap[idx])
     return
 
 def Test():
@@ -767,15 +780,15 @@ def Main():
     print(subRot[0], subRot[1], subRot[2])
     return
     '''
-    Test()
+    Write_World_Convert_RelativeBoneDataToJson("./example_json", "HuMan")
     return
     ##print(type(None))
     '''
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
                      skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
     '''
-    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
-                 GetTestSkeleteLinkPath(), None)
+    #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
+    #             GetTestSkeleteLinkPath(), None)
     #Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002", True)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
