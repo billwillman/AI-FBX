@@ -807,8 +807,8 @@ def Main():
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
                      skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
     '''
-    #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
-    #             GetTestSkeleteLinkPath(), None)
+    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
+                GetTestSkeleteLinkPath(), None)
     #Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002", True)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
