@@ -513,8 +513,7 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         globalSetting: FbxGlobalSettings = scene.GetGlobalSettings()
 
         ######################### 将坐标系设置成和UNITY一致的情况 ###########################################################
-        '''
-        axisSystem: FbxAxisSystem = FbxAxisSystem(FbxAxisSystem.EUpVector.eYAxis,
+        axisSystem: FbxAxisSystem = FbxAxisSystem(FbxAxisSystem.EUpVector.eZAxis,
                                                   FbxAxisSystem.EFrontVector.eParityEven,
                                                   FbxAxisSystem.ECoordSystem.eLeftHanded)
         globalSetting.SetOriginalUpAxis(axisSystem)
@@ -523,7 +522,6 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         axisSystem = globalSetting.GetAxisSystem()
         print("坐标系左手坐标系还是有右手: ", axisSystem.GetCoorSystem())
         print("UpVector: ", axisSystem.GetUpVector())
-        '''
         ###############################################################################################################
         globalSetting.SetOriginalSystemUnit(FbxSystemUnit.m)
         globalSetting.SetSystemUnit(FbxSystemUnit.m)
