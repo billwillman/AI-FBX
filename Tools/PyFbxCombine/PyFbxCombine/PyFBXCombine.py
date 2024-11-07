@@ -252,19 +252,19 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             localShear: FbxVector4 = FbxVector4()
             localScale: FbxVector4 = FbxVector4()
             sign = m.GetElements(localPos, localQuat, localShear, localScale)
-            localPos[0] = localPos[0] if math.fabs(localPos[0]) > 0.000001 else 0
-            localPos[1] = localPos[1] if math.fabs(localPos[1]) > 0.000001 else 0
-            localPos[2] = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
-            fbxNode.LclTranslation.Set(FbxDouble3(localPos[0], localPos[1], localPos[2]))
+            x = localPos[0] if math.fabs(localPos[0]) > 0.000001 else 0
+            y = localPos[1] if math.fabs(localPos[1]) > 0.000001 else 0
+            z = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
+            fbxNode.LclTranslation.Set(FbxDouble3(x, y, z))
             # print("[new offset] ", localPos[0], localPos[1], localPos[2])
             if _HasAttribute(node, "rotation"):
                 degrees = _QuatToRollPitchYaw(localQuat)
                 fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
             if _HasAttribute(node, "scale"):
-                localScale[0] = localScale[0] if math.fabs(localScale[0]) > 0.000001 else 0
-                localScale[1] = localScale[1] if math.fabs(localScale[1]) > 0.000001 else 0
-                localScale[2] = localScale[2] if math.fabs(localScale[2]) > 0.000001 else 0
-                fbxNode.LclScaling.Set(FbxDouble3(localScale[0] * sign, localScale[1] * sign, localScale[2] * sign))
+                x = localScale[0] if math.fabs(localScale[0]) > 0.000001 else 0
+                y = localScale[1] if math.fabs(localScale[1]) > 0.000001 else 0
+                z = localScale[2] if math.fabs(localScale[2]) > 0.000001 else 0
+                fbxNode.LclScaling.Set(FbxDouble3(x * sign, y * sign, z * sign))
 
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
