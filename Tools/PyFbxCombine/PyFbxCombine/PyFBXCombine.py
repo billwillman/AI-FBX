@@ -511,6 +511,10 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         manager, scene = FbxCommon.InitializeSdkObjects()
 
         globalSetting: FbxGlobalSettings = scene.GetGlobalSettings()
+
+        ######################### 将坐标系设置成和UNITY一致的情况 ###########################################################
+        
+        ###############################################################################################################
         '''
         axisSystem: FbxAxisSystem = FbxAxisSystem(FbxAxisSystem.EUpVector.eYAxis, FbxAxisSystem.EFrontVector.eParityEven,
                                                   FbxAxisSystem.ECoordSystem.eLeftHanded)
