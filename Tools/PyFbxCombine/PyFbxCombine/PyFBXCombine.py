@@ -54,6 +54,11 @@ def GetOrCreateLayerFromMesh(mesh: FbxMesh, layerIndex: int = 0):
 def CreateMesh(scene, meshName, vertexs, normals, texcoords, faces)->FbxMesh:
     rootNode = scene.GetRootNode()
     currentNode = FbxNode.Create(scene, meshName)
+    ### 设置跟UNITY一致
+    currentNode.SetTransformationInheritType(FbxTransform.EInheritType.eInheritRSrs)
+    currentNode.SetRotationOrder(FbxNode.EPivotSet.eSourcePivot, FbxEuler.EOrder.eOrderZXY)
+    currentNode.SetRotationActive(True)
+    ###
 
     mesh: FbxMesh = FbxMesh.Create(scene, meshName)
 
@@ -201,6 +206,12 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     else:
         skel.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
     fbxNode: FbxNode = FbxNode.Create(fbxManager, boneName)
+    ### 设置跟UNITY一致
+    fbxNode.SetTransformationInheritType(FbxTransform.EInheritType.eInheritRSrs)
+    ##rr = fbxNode.GetRotationOrder(FbxNode.EPivotSet.eSourcePivot)
+    fbxNode.SetRotationOrder(FbxNode.EPivotSet.eSourcePivot, FbxEuler.EOrder.eOrderZXY)
+    fbxNode.SetRotationActive(True)
+    ###
     fbxNode.SetNodeAttribute(skel)
     if isRoot:
         position: FbxDouble3 = node["position"]
