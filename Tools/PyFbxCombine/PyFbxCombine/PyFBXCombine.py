@@ -130,7 +130,10 @@ def _QuatToRollPitchYaw(quat: FbxQuaternion)->FbxDouble3:
     ## __init__(self, w, x, y, z):
     q = Quaternion.FQuat(quat[3], quat[0], quat[1], quat[2])
     ret = q.eulerAngles
-    return FbxDouble3(ret[0], ret[1], ret[2])
+    x = ret[0] if math.fabs(ret[0]) > 0.000001 else 0
+    y = ret[1] if math.fabs(ret[1]) > 0.000001 else 0
+    z = ret[2] if math.fabs(ret[2]) > 0.000001 else 0
+    return FbxDouble3(x, y, z)
 
 def _RollPitchYawToQuat(degrees: FbxDouble3)->FbxQuaternion:
     q = Quaternion.FQuat.Euler(Quaternion.Vector3(degrees[0], degrees[1], degrees[2]))
@@ -249,12 +252,18 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             localShear: FbxVector4 = FbxVector4()
             localScale: FbxVector4 = FbxVector4()
             sign = m.GetElements(localPos, localQuat, localShear, localScale)
+            localPos[0] = localPos[0] if math.fabs(localPos[0]) > 0.000001 else 0
+            localPos[1] = localPos[1] if math.fabs(localPos[1]) > 0.000001 else 0
+            localPos[2] = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
             fbxNode.LclTranslation.Set(FbxDouble3(localPos[0], localPos[1], localPos[2]))
             # print("[new offset] ", localPos[0], localPos[1], localPos[2])
             if _HasAttribute(node, "rotation"):
                 degrees = _QuatToRollPitchYaw(localQuat)
                 fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
             if _HasAttribute(node, "scale"):
+                localScale[0] = localScale[0] if math.fabs(localScale[0]) > 0.000001 else 0
+                localScale[1] = localScale[1] if math.fabs(localScale[1]) > 0.000001 else 0
+                localScale[2] = localScale[2] if math.fabs(localScale[2]) > 0.000001 else 0
                 fbxNode.LclScaling.Set(FbxDouble3(localScale[0] * sign, localScale[1] * sign, localScale[2] * sign))
 
     node["FbxNode"] = fbxNode
