@@ -209,7 +209,8 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     ### 设置跟UNITY一致
     fbxNode.SetTransformationInheritType(FbxTransform.EInheritType.eInheritRSrs)
     #rType = fbxNode.GetRotationOrder(FbxNode.EPivotSet.eSourcePivot)
-    fbxNode.SetRotationOrder(FbxNode.EPivotSet.eSourcePivot, FbxEuler.EOrder.eOrderZXY)
+    rType = EFbxRotationOrder(FbxEuler.EOrder.eOrderZXY.value)
+    fbxNode.SetRotationOrder(FbxNode.EPivotSet.eSourcePivot, rType)
     fbxNode.SetRotationActive(True)
     ###
     fbxNode.SetNodeAttribute(skel)
