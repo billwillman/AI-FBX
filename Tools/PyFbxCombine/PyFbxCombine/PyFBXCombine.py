@@ -312,7 +312,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
     try:
         for i in range(0, N1, 1):
             boneWeightDatas = vertexBoneDatas[i]
-            key = str(i)
+            key = str(useBoneIndexData[i]) if hasUseBoneIndexData else str(i)
             N2 = len(boneWeightDatas)
             VertexNum = N2
             for j in range(0, N2, 1):
