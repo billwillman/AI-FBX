@@ -200,24 +200,26 @@ def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
                 _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(child)
     return
 
-def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
-    boneName = node["name"]
+def _CreateFbxBoneNode(fbxManager, node, isBone = True)->FbxNode:
+    Name = node["name"]
     isRoot = len(node["childs"]) <= 0
     hasParent = _HasAttribute(node, "parent")
-    skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, boneName)
-    if not hasParent and not isRoot:
-        skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
-    else:
-        skel.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
-    fbxNode: FbxNode = FbxNode.Create(fbxManager, boneName)
+    skel = None
+    if isBone:
+        skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, Name)
+        if not hasParent and not isRoot:
+            skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
+        else:
+            skel.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
+    fbxNode: FbxNode = FbxNode.Create(fbxManager, Name)
     ### 设置跟UNITY一致
     fbxNode.SetTransformationInheritType(FbxTransform.EInheritType.eInheritRSrs)
     #rType = fbxNode.GetRotationOrder(FbxNode.EPivotSet.eSourcePivot)
     rType = EFbxRotationOrder(FbxEuler.EOrder.eOrderZXY.value)
     fbxNode.SetRotationOrder(FbxNode.EPivotSet.eSourcePivot, rType)
     fbxNode.SetRotationActive(True)
-    ###
-    fbxNode.SetNodeAttribute(skel)
+    if skel != None:
+        fbxNode.SetNodeAttribute(skel)
     if not hasParent:
         position: FbxDouble3 = node["position"]
         fbxNode.LclTranslation.Set(position)
