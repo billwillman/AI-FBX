@@ -282,7 +282,8 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode, expo
     for child in targetNode["childs"]:
         childFbxNode: FbxNode = _CreateFbxBoneNode(fbxManager, child)
         targetFbxNode.AddChild(childFbxNode)
-        exportBoneNum = exportBoneNum + 1
+        if childFbxNode.GetNodeAttributeByIndex(0) != None:
+            exportBoneNum = exportBoneNum + 1
         exportBoneNum = _CreateChildFbxBoneNode(fbxManager, childFbxNode, child, exportBoneNum)
     return exportBoneNum
 
@@ -541,7 +542,8 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
         RootNode = value
         if fbxManager != None and scene != None:
             fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
-            exportBoneNum = exportBoneNum + 1
+            if fbxRootNode.GetNodeAttributeByIndex(0) != None:
+                exportBoneNum = exportBoneNum + 1
             exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
             scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     print("[export] boneNum: %d" % exportBoneNum)
