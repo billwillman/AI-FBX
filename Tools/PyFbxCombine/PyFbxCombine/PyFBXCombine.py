@@ -458,6 +458,7 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
     hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
     useRootBoneIndex = None
     if hasUseBoneIndexData:
+        ##useBoneIndexData = np.sort(useBoneIndexData) ## 不要排序
         for i in range(len(useBoneIndexData)):
             idx = useBoneIndexData[i]
             boneIndexIsUseBone[idx] = True
