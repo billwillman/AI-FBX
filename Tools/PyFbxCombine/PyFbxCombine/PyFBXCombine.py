@@ -202,7 +202,8 @@ def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
 
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     boneName = node["name"]
-    isRoot = not _HasAttribute(node, "parent")
+    isRoot = len(node["childs"]) <= 0
+    hasParent = _HasAttribute(node, "parent")
     skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, boneName)
     if isRoot:
         skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
@@ -217,7 +218,7 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     fbxNode.SetRotationActive(True)
     ###
     fbxNode.SetNodeAttribute(skel)
-    if isRoot:
+    if not hasParent:
         position: FbxDouble3 = node["position"]
         fbxNode.LclTranslation.Set(position)
         if _HasAttribute(node, "rotation"):
