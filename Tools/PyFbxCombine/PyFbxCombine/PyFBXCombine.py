@@ -200,14 +200,18 @@ def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
                 _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(child)
     return
 
-def _CreateFbxBoneNode(fbxManager, node, isBone = True)->FbxNode:
+def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     Name = node["name"]
     isRoot = len(node["childs"]) <= 0
     hasParent = _HasAttribute(node, "parent")
     skel = None
-    if isBone:
+    isUseBone = node["isUseBone"]
+    if isUseBone:
         skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, Name)
-        if not hasParent and not isRoot:
+        isRootBone = not hasParent and not isRoot
+        if _HasAttribute(node, "isUseRootBone"):
+            isRootBone = node["isUseRootBone"]
+        if isRootBone:
             skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
         else:
             skel.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
@@ -450,6 +454,15 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
     boneNum = len(bonePosDatas)
     if boneNum <= 0:
         return
+    boneIndexIsUseBone = {}
+    hasUseBoneIndexData = str(type(useBoneIndexData)) == "<class 'bool'>"
+    useRootBoneIndex = None
+    if hasUseBoneIndexData:
+        for i in range(useBoneIndexData):
+            idx = useBoneIndexData[i]
+            boneIndexIsUseBone[idx] = True
+            if i == 0:
+                useRootBoneIndex = idx
     exportBoneMap = {}  ## 骨骼名对应位置
     for i in range(0, boneNum, 1):
         bonePos = bonePosDatas[i]
@@ -476,6 +489,8 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
             # 角度制(坐标系看useLocalSpace)
             "scale": FbxDouble3(boneScale[0], boneScale[1], boneScale[2]) if hasBoneScale else None,
             # 缩放(坐标系看useLocalSpace)
+            "isUseBone": useBoneIndexData[i] if hasUseBoneIndexData else True, ## 是否是使用的骨骼
+            "isUseRootBone": i == useRootBoneIndex if useRootBoneIndex != None else None,
         }
     ##### 拓扑关系
     boneLinkNum = len(boneLinkDatas)
@@ -856,7 +871,7 @@ def Main():
                      skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
     '''
     BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
-                GetTestSkeleteLinkPath(), None)
+                GetTestSkeleteLinkPath(), None, None)
     #Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002", True)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
