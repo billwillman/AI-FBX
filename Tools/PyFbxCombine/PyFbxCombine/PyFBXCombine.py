@@ -205,7 +205,7 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     isRoot = len(node["childs"]) <= 0
     hasParent = _HasAttribute(node, "parent")
     skel: FbxSkeleton = FbxSkeleton.Create(fbxManager, boneName)
-    if isRoot:
+    if not hasParent:
         skel.SetSkeletonType(FbxSkeleton.EType.eRoot)
     else:
         skel.SetSkeletonType(FbxSkeleton.EType.eLimbNode)
