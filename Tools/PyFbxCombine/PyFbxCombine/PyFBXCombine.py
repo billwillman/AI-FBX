@@ -445,7 +445,7 @@ def _AddChildNode(parentNode, childNode):
     return
 
 ##### 生成骨骼拓扑结构
-def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
+def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace):
     ## 骨骼KEY（字符串）和位置建立关系
     boneNum = len(bonePosDatas)
     if boneNum <= 0:
@@ -517,7 +517,7 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace):
-    exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
+    exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
     ## 更换骨骼节点名(执行放最后)
@@ -781,7 +781,7 @@ def Write_World_Convert_RelativeBoneDataToJson(dir, name):
     if boneNamesFileName != None:
         boneNamesData = np.load(boneNamesFileName)
     ## 拓扑结构
-    exportBoneMap, skelRootNode = _BuildBoneMap(None, None, boneLocDatas, boneRotDatas, boneScaleDatas, boneLinkDatas, boneNamesData,
+    exportBoneMap, skelRootNode = _BuildBoneMap(None, None, boneLocDatas, boneRotDatas, boneScaleDatas, boneLinkDatas, boneNamesData, None,
                   False)
 
     boneNum = len(boneLocDatas)
