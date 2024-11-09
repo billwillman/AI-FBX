@@ -303,6 +303,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
 
     cluster_dict = {}
+    cluster_dict[rootName] = clusterRoot
     N1 = len(vertexBoneDatas)
     VertexNum = None
     VertexBoneMap = {}
@@ -375,16 +376,25 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
 
         for i in range(0, N1, 1):
             boneWeightDatas = vertexBoneDatas[i]
-            key = str(i)
-            cluster_dict[key]: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + key)
+            if hasUseBoneIndexData:
+                key = str(useBoneIndexData[i])
+            else:
+                key = str(i)
+            clusterName = "Cluster_" + key
+            cluster = None
+            if key in cluster_dict:
+                cluster = cluster_dict[key]
+            else:
+                cluster = FbxCluster.Create(fbxManager, clusterName)
+                cluster_dict[key] = cluster
             fbxNode: FbxNode = scene.FindNodeByName(key)
-            cluster_dict[key].SetLink(fbxNode)
+            cluster.SetLink(fbxNode)
             #cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
-            cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eNormalize)
+            cluster.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
             N2 = len(boneWeightDatas)
             for j in range(0, N2, 1):
                 if abs(boneWeightDatas[j]) >= _cMinWeight:
-                    s = "boneIndex: " + key + " vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
+                    s = "boneIndex: " + str(i) + " vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
                     print(s)
                     f.write(s + "\n")
                     f.flush()
