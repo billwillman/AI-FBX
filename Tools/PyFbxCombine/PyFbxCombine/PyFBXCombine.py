@@ -289,9 +289,9 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode, expo
 global _cMinWeight
 _cMinWeight = 0.001
 
-def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode):
-    rootFbxNode = skelRootNode["FbxNode"]
-    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + skelRootNode["name"])
+def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, RootNode):
+    rootFbxNode = RootNode["FbxNode"]
+    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + RootNode["name"])
     clusterRoot.SetLink(rootFbxNode)
     ##clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
@@ -455,10 +455,10 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
     if boneNum <= 0:
         return
     boneIndexIsUseBone = {}
-    hasUseBoneIndexData = str(type(useBoneIndexData)) == "<class 'bool'>"
+    hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
     useRootBoneIndex = None
     if hasUseBoneIndexData:
-        for i in range(useBoneIndexData):
+        for i in range(len(useBoneIndexData)):
             idx = useBoneIndexData[i]
             boneIndexIsUseBone[idx] = True
             if i == 0:
@@ -489,7 +489,7 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
             # 角度制(坐标系看useLocalSpace)
             "scale": FbxDouble3(boneScale[0], boneScale[1], boneScale[2]) if hasBoneScale else None,
             # 缩放(坐标系看useLocalSpace)
-            "isUseBone": useBoneIndexData[i] if hasUseBoneIndexData else True, ## 是否是使用的骨骼
+            "isUseBone": (i in boneIndexIsUseBone) if hasUseBoneIndexData else True, ## 是否是使用的骨骼
             "isUseRootBone": i == useRootBoneIndex if useRootBoneIndex != None else None,
         }
     ##### 拓扑关系
@@ -519,25 +519,25 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
             _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(value)
     ## 生成FbxSkeleton
     exportBoneNum = 0
-    skelRootNode = None
+    RootNode = None
     for key, value in exportBoneMap.items():
-        skelRootNode = value
+        RootNode = value
         if fbxManager != None and scene != None:
             fbxRootNode: FbxNode = _CreateFbxBoneNode(fbxManager, value)
             exportBoneNum = exportBoneNum + 1
             exportBoneNum = _CreateChildFbxBoneNode(fbxManager, fbxRootNode, value, exportBoneNum)
             scene.GetRootNode().GetChild(0).AddChild(fbxRootNode)
     print("[export] boneNum: %d" % exportBoneNum)
-    return exportBoneMap, skelRootNode
+    return exportBoneMap, RootNode
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
                          boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace):
-    exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
+    exportBoneMap, RootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
     ## 顶点蒙皮
-    _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
+    _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, RootNode)
     ## 更换骨骼节点名(执行放最后)
-    if skelRootNode != None:
-        _TransBoneNameAndChilds(skelRootNode)
+    if RootNode != None:
+        _TransBoneNameAndChilds(RootNode)
     return
 
 global bUseSceneImport
@@ -870,9 +870,11 @@ def Main():
         BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
                      skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
     '''
+    '''
     BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
                 GetTestSkeleteLinkPath(), None, None)
-    #Generate_ObjAndNPY_ToFBX("./example_json", "hero_kof_kyo_body_0002", True)
+    '''
+    Generate_ObjAndNPY_ToFBX("./example_json", "HuMan", False)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
 
