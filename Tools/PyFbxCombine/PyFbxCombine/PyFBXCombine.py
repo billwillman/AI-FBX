@@ -866,14 +866,8 @@ def Main():
     #Write_World_Convert_RelativeBoneDataToJson("./example_json", "HuMan")
     #return
     ##print(type(None))
-    '''
-        BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
-                     skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx")
-    '''
-    '''
-    BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
-                GetTestSkeleteLinkPath(), None, None)
-    '''
+    #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
+    #            GetTestSkeleteLinkPath(), None, None)
     Generate_ObjAndNPY_ToFBX("./example_json", "HuMan", False)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
