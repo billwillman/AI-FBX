@@ -516,7 +516,7 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
     return exportBoneMap, skelRootNode
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
-                         boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace):
+                         boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace):
     exportBoneMap, skelRootNode = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, skelRootNode)
@@ -530,7 +530,7 @@ bUseSceneImport = True
 
 ## obj模型 顶点BoneWeight 骨骼位置 骨骼父子关系 导出文件
 def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
-                 skeleteLinkFileName, boneNamesFileName, useLocalSpace = False, outFileName = "out.fbx"):
+                 skeleteLinkFileName, boneNamesFileName, useBoneIndexFileName, useLocalSpace = False, outFileName = "out.fbx"):
     if bUseSceneImport:
         manager, scene = FbxCommon.InitializeSdkObjects()
 
@@ -573,26 +573,30 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
             return
         ## vertex骨骼信息
         vertexBoneDatas = np.load(vertBoneDataFileName)
-        ## 骨骼关联信息
+        ## 节点关联信息
         boneLinkDatas = np.load(skeleteLinkFileName)
-        ## 骨骼位置信息
+        ## 节点位置信息
         boneLocDatas = np.load(boneLocDataFileName)
-        ## 骨骼旋转信息
+        ## 节点旋转信息
         boneRotDatas = None
         if boneRotDataFileName != None:
             boneRotDatas = np.load(boneRotDataFileName)
-        ## 骨骼缩放信息
+        ## 节点缩放信息
         boneScaleDatas = None
         if boneScaleDataFileName != None:
             boneScaleDatas = np.load(boneScaleDataFileName)
-        ## 骨骼名称
+        ## 节点名称
         boneNamesData = None
         if boneNamesFileName != None:
             boneNamesData = np.load(boneNamesFileName)
+        ## useBone
+        useBoneIndexData = None
+        if useBoneIndexFileName != None:
+            useBoneIndexData = np.load(useBoneIndexFileName)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
         # AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
-                            boneScaleDatas, boneLinkDatas, boneNamesData, useLocalSpace)
+                            boneScaleDatas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
@@ -621,13 +625,16 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         boneNamesData = None
         if boneNamesFileName != None:
             boneNamesData = np.load(boneNamesFileName)
+        useBoneIndexData = None
+        if useBoneIndexFileName != None:
+            useBoneIndexData = np.load(useBoneIndexFileName)
         ## 初始化FBX环境
         manager, scene = FbxCommon.InitializeSdkObjects()
         # 创建Mesh
         mesh, meshNode = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
-                             boneScaleDatas, boneLinkDatas, boneNamesData, useLocalSpace)
+                             boneScaleDatas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
@@ -669,6 +676,9 @@ def Generate_JsonToNPY(dir, name):
     ## 骨骼名称
     print("[Generate] Convert boneName to names...")
     Generate_Json_ToNPY(dir, name, "names")
+    ## 使用的骨骼索引
+    print("[Generate] Convert boneName to use bone indexs...")
+    Generate_Json_ToNPY(dir, name, "boneIndexs")
     return
 
 # 使用obj文件和NPY文件生成FBX
@@ -701,9 +711,13 @@ def Generate_ObjAndNPY_ToFBX(dir, name, useLocalSpace):
     boneNamesFileName = os.path.abspath(boneNamesFileName)
     if not os.path.exists(boneNamesFileName):
         boneNamesFileName = None
+    useBoneIndexFileName = "%s/%s_boneIndexs.npy" % (dir, name)
+    useBoneIndexFileName = os.path.abspath(useBoneIndexFileName)
+    if not os.path.exists(useBoneIndexFileName):
+        useBoneIndexFileName = None
     ## BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, boneNamesFileName, useLocalSpace, outFileName = "out.fbx")
     BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName,
-                 boneLinkeFileName, boneNamesFileName, useLocalSpace)
+                 boneLinkeFileName, boneNamesFileName, useBoneIndexFileName, useLocalSpace)
     return
 
 def _BoneAndChild_To_Map(bone, boneMap):
