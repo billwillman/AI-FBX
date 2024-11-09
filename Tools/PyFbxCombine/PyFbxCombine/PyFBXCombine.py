@@ -290,8 +290,14 @@ global _cMinWeight
 _cMinWeight = 0.001
 
 def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, RootNode):
+    hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
     rootFbxNode = RootNode["FbxNode"]
-    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + RootNode["name"])
+    rootName = RootNode["name"]
+    if hasUseBoneIndexData:
+        key = str(useBoneIndexData[0])
+        rootFbxNode = scene.FindNodeByName(key)
+        rootName = key
+    clusterRoot: FbxCluster = FbxCluster.Create(fbxManager, "Cluster_" + rootName)
     clusterRoot.SetLink(rootFbxNode)
     ##clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eAdditive)
     clusterRoot.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
