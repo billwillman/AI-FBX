@@ -408,8 +408,8 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
             else:
                 cluster = FbxCluster.Create(fbxManager, clusterName)
                 cluster_dict[key] = cluster
-            fbxNode: FbxNode = scene.FindNodeByName(key)
-            cluster.SetLink(fbxNode)
+                fbxNode: FbxNode = scene.FindNodeByName(key)
+                cluster.SetLink(fbxNode)
             #cluster_dict[key].SetLinkMode(FbxCluster.ELinkMode.eAdditive)
             cluster.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
             N2 = len(boneWeightDatas)
