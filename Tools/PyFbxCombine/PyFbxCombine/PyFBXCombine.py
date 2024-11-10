@@ -12,6 +12,8 @@ from test.test_importlib.import_.test_fromlist import ReturnValue
 from functools import cmp_to_key
 import Quaternion
 
+### FbxExporter.cs ExportSkinnedMesh
+
 
 def _HasAttribute(obj, name)->bool:
     ret = name in obj
@@ -264,14 +266,20 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             z = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
             fbxNode.LclTranslation.Set(FbxDouble3(x, y, z))
             # print("[new offset] ", localPos[0], localPos[1], localPos[2])
+            ###useRotation = False
             if _HasAttribute(node, "rotation"):
                 degrees = _QuatToRollPitchYaw(localQuat)
                 fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
+                ##fbxNode.LclRotation.Set(FbxDouble3(0, 0, 0))
+                ###useRotation = True
             if _HasAttribute(node, "scale"):
                 x = localScale[0] if math.fabs(localScale[0]) > 0.000001 else 0
                 y = localScale[1] if math.fabs(localScale[1]) > 0.000001 else 0
                 z = localScale[2] if math.fabs(localScale[2]) > 0.000001 else 0
                 fbxNode.LclScaling.Set(FbxDouble3(x * sign, y * sign, z * sign))
+            ##fbxNode.SetRotationActive(True)
+            ##fbxNode.SetPivotState(FbxNode.EPivotSet.eSourcePivot, FbxNode.EPivotState.ePivotReference)
+            ###fbxNode.SetPreRotation(FbxNode.EPivotSet.eSourcePivot, FbxVector4(degrees[0], degrees[1], degrees[2]))
 
     node["FbxNode"] = fbxNode
     #fbxNode.LclTranslation.Set(node["position"])
@@ -580,7 +588,7 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
                                                   FbxAxisSystem.ECoordSystem.eLeftHanded)
         globalSetting.SetOriginalUpAxis(axisSystem)
         globalSetting.SetAxisSystem(axisSystem)
-
+        
         axisSystem = globalSetting.GetAxisSystem()
         print("坐标系左手坐标系还是有右手: ", axisSystem.GetCoorSystem())
         print("UpVector: ", axisSystem.GetUpVector())
@@ -874,6 +882,10 @@ def Main():
             name = str(argv[3])
             Generate_ObjAndNPY_ToFBX(dir, name, False)
             return
+        elif argv[1] == "out-local":
+            dir = str(argv[2])
+            name = str(argv[3])
+            Write_World_Convert_RelativeBoneDataToJson(dir, name)
         return
     '''
     parenteRot = FbxDouble3(45, 0, 0)
