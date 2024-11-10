@@ -419,7 +419,9 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
                     print(s)
                     f.write(s + "\n")
                     f.flush()
-                    cluster_dict[key].AddControlPointIndex(j, boneWeightDatas[j])
+                    vertexIndex = j
+                    vertexBoneWeight = boneWeightDatas[j]
+                    cluster_dict[key].AddControlPointIndex(vertexIndex, vertexBoneWeight)
     finally:
         f.close()
         f = None
