@@ -414,7 +414,7 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
                 cluster.SetLinkMode(FbxCluster.ELinkMode.eNormalize)
             N2 = len(boneWeightDatas)
             for j in range(0, N2, 1):
-                if abs(boneWeightDatas[j]) >= _cMinWeight:
+                if abs(boneWeightDatas[j]) >= _cMinWeight and boneWeightDatas[j] > 0:
                     s = "boneIndex: " + str(i) + " vertexIndex: " + str(j) + " boneWeight: " + str(boneWeightDatas[j])
                     print(s)
                     f.write(s + "\n")
