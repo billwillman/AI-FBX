@@ -274,7 +274,6 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             z = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
             if cUseUnityAxis:
                 x = -x
-                print(x)
             fbxNode.LclTranslation.Set(FbxDouble3(x, y, z))
             # print("[new offset] ", localPos[0], localPos[1], localPos[2])
             ###useRotation = False
