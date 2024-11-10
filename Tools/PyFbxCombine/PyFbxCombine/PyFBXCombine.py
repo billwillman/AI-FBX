@@ -1,5 +1,6 @@
 import math
 import sys
+from math import degrees
 
 import json
 import os
@@ -202,6 +203,9 @@ def _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(node):
                 _CalcNodeAndChild_WorldToLocalMatrixFromWorldSpace(child)
     return
 
+global cUseUnityAxis
+cUseUnityAxis = True
+
 def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
     Name = node["name"]
     isRoot = len(node["childs"]) <= 0
@@ -228,9 +232,13 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
         fbxNode.SetNodeAttribute(skel)
     if not hasParent:
         position: FbxDouble3 = node["position"]
+        if cUseUnityAxis:
+            position = FbxDouble3(-position[0], position[1], position[2])
         fbxNode.LclTranslation.Set(position)
         if _HasAttribute(node, "rotation"):
             rot: FbxDouble3 = node["rotation"]
+            if cUseUnityAxis:
+                rot = FbxDouble3(rot[0], -rot[1], -rot[2])
             fbxNode.LclRotation.Set(rot)
         if _HasAttribute(node, "scale"):
             scale: FbxDouble3 = node["scale"]
@@ -264,11 +272,16 @@ def _CreateFbxBoneNode(fbxManager, node)->FbxNode:
             x = localPos[0] if math.fabs(localPos[0]) > 0.000001 else 0
             y = localPos[1] if math.fabs(localPos[1]) > 0.000001 else 0
             z = localPos[2] if math.fabs(localPos[2]) > 0.000001 else 0
+            if cUseUnityAxis:
+                x = -x
+                print(x)
             fbxNode.LclTranslation.Set(FbxDouble3(x, y, z))
             # print("[new offset] ", localPos[0], localPos[1], localPos[2])
             ###useRotation = False
             if _HasAttribute(node, "rotation"):
                 degrees = _QuatToRollPitchYaw(localQuat)
+                if cUseUnityAxis:
+                    degrees = FbxDouble3(degrees[0], -degrees[1], -degrees[2])
                 fbxNode.LclRotation.Set(FbxDouble3(degrees[0], degrees[1], degrees[2]))
                 ##fbxNode.LclRotation.Set(FbxDouble3(0, 0, 0))
                 ###useRotation = True
