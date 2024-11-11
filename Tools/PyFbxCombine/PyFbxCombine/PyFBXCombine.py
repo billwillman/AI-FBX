@@ -320,6 +320,7 @@ def _CreateSkin(fbxManager, scene, mesh: FbxMesh, meshNode, vertexBoneDatas, use
             vertPosToIndexMap[s] = i
 
 
+
     hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
     rootFbxNode = RootNode["FbxNode"]
     rootName = RootNode["name"]
