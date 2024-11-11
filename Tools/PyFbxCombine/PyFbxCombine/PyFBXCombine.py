@@ -586,7 +586,7 @@ bUseSceneImport = True
 
 ## obj模型 顶点BoneWeight 骨骼位置 骨骼父子关系 导出文件
 def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName,
-                 skeleteLinkFileName, boneNamesFileName, useBoneIndexFileName, useLocalSpace = False, outFileName = "out.fbx"):
+                 skeleteLinkFileName, boneNamesFileName, useBoneIndexFileName, vertexDataFileName, useLocalSpace = False, outFileName = "out.fbx"):
     if bUseSceneImport:
         manager, scene = FbxCommon.InitializeSdkObjects()
 
@@ -773,9 +773,12 @@ def Generate_ObjAndNPY_ToFBX(dir, name, useLocalSpace):
     useBoneIndexFileName = os.path.abspath(useBoneIndexFileName)
     if not os.path.exists(useBoneIndexFileName):
         useBoneIndexFileName = None
+    vertexDataFileName = "%s/%s_vertexs.npy" % (dir, name)
+    if not os.path.exists(vertexDataFileName):
+        vertexDataFileName = None
     ## BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRotDataFileName, boneScaleDataFileName, skeleteLinkFileName, boneNamesFileName, useLocalSpace, outFileName = "out.fbx")
     BuildFBXData(objFileName, vertexBoneFileName, boneLocFileName, boneRotFileName, boneScaleFileName,
-                 boneLinkeFileName, boneNamesFileName, useBoneIndexFileName, useLocalSpace)
+                 boneLinkeFileName, boneNamesFileName, useBoneIndexFileName, vertexDataFileName, useLocalSpace)
     return
 
 def _BoneAndChild_To_Map(bone, boneMap):
@@ -914,7 +917,7 @@ def Main():
     #return
     ##print(type(None))
     #BuildFBXData(GetTestObjFilePath(), GetTestVertexBoneDataPath(), GetTestBoneDataPath(), None, None,
-    #            GetTestSkeleteLinkPath(), None, None)
+    #            GetTestSkeleteLinkPath(), None, None, None)
     Generate_ObjAndNPY_ToFBX("./example_json", "HuMan", False)
     #Generate_JsonToNPY("./example_json", "hero_kof_kyo_body_0002")
     return
