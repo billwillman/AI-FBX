@@ -310,7 +310,7 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode, expo
 global _cMinWeight
 _cMinWeight = 0.001
 
-def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, RootNode):
+def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, vertexDatas, RootNode):
     hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
     rootFbxNode = RootNode["FbxNode"]
     rootName = RootNode["name"]
@@ -575,7 +575,7 @@ def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bon
                          boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, vertexDatas, useLocalSpace):
     exportBoneMap, RootNode, useRootBoneIndex = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
     ## 顶点蒙皮
-    _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, RootNode)
+    _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, vertexDatas, RootNode)
     ## 更换骨骼节点名(执行放最后)
     if RootNode != None:
         _TransBoneNameAndChilds(RootNode)
