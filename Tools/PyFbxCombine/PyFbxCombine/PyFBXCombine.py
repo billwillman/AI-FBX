@@ -311,6 +311,15 @@ global _cMinWeight
 _cMinWeight = 0.001
 
 def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, vertexDatas, RootNode):
+    hasVertexDatas = str(type(vertexDatas)) != "<class 'NoneType'>"
+    vertPosToIndexMap = {}
+    if hasVertexDatas:
+        for i in range(0, len(vertexDatas)):
+            vert = vertexDatas[i]
+            v:FbxDouble3 = FbxDouble3(vert[0], vert[1], vert[2])
+            vertPosToIndexMap[v] = i
+
+
     hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
     rootFbxNode = RootNode["FbxNode"]
     rootName = RootNode["name"]
