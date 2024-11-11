@@ -735,6 +735,8 @@ def Generate_JsonToNPY(dir, name):
     ## 使用的骨骼索引
     print("[Generate] Convert boneName to use bone indexs...")
     Generate_Json_ToNPY(dir, name, "boneIndexs")
+    print("[Gerate] VertexData...")
+    Generate_Json_ToNPY(dir, name, "vertexs")
     return
 
 # 使用obj文件和NPY文件生成FBX
