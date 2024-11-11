@@ -310,7 +310,7 @@ def _CreateChildFbxBoneNode(fbxManager, targetFbxNode: FbxNode, targetNode, expo
 global _cMinWeight
 _cMinWeight = 0.001
 
-def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, vertexDatas, RootNode):
+def _CreateSkin(fbxManager, scene, mesh: FbxMesh, meshNode, vertexBoneDatas, useBoneIndexData, vertexDatas, RootNode):
     hasVertexDatas = str(type(vertexDatas)) != "<class 'NoneType'>"
     vertPosToIndexMap = {}
     if hasVertexDatas:
