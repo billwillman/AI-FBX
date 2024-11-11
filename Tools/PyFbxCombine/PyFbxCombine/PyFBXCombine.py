@@ -572,7 +572,7 @@ def _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas
     return exportBoneMap, RootNode, boneIndexIsUseBone
 
 def AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas,
-                         boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace):
+                         boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, vertexDatas, useLocalSpace):
     exportBoneMap, RootNode, useRootBoneIndex = _BuildBoneMap(fbxManager, scene, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
     ## 顶点蒙皮
     _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndexData, RootNode)
@@ -649,10 +649,13 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         useBoneIndexData = None
         if useBoneIndexFileName != None:
             useBoneIndexData = np.load(useBoneIndexFileName)
+        vertexDatas = None
+        if vertexDataFileName != None:
+            vertexDatas = np.load(vertexDataFileName)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
         # AddSkinnedDataToMesh(fbxManager, scene, mesh, meshNode, vertexBoneDatas, bonePosDatas, boneRotDatas, boneScaleDateas, boneLinkDatas, boneNamesData, useLocalSpace)
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
-                            boneScaleDatas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
+                            boneScaleDatas, boneLinkDatas, boneNamesData, useBoneIndexData, vertexDatas, useLocalSpace)
     else:
         model = Obj.open(objFileName)
         ## 位置数据
@@ -684,13 +687,16 @@ def BuildFBXData(objFileName, vertBoneDataFileName, boneLocDataFileName, boneRot
         useBoneIndexData = None
         if useBoneIndexFileName != None:
             useBoneIndexData = np.load(useBoneIndexFileName)
+        vertexDatas = None
+        if vertexDataFileName != None:
+            vertexDatas = np.load(vertexDataFileName)
         ## 初始化FBX环境
         manager, scene = FbxCommon.InitializeSdkObjects()
         # 创建Mesh
         mesh, meshNode = CreateMesh(scene, "Character", vertexs, normals, texcoords, faces)
         # 导入骨骼和蒙皮信息，让mesh变skinnedMesh
         AddSkinnedDataToMesh(manager, scene, mesh, meshNode, vertexBoneDatas, boneLocDatas, boneRotDatas,
-                             boneScaleDatas, boneLinkDatas, boneNamesData, useBoneIndexData, useLocalSpace)
+                             boneScaleDatas, boneLinkDatas, boneNamesData, useBoneIndexData, vertexDatas, useLocalSpace)
     ## 导出
     FbxCommon.SaveScene(manager, scene, outFileName)
     return
