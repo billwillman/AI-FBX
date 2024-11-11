@@ -316,8 +316,8 @@ def _CreateSkin(fbxManager, scene, mesh, meshNode, vertexBoneDatas, useBoneIndex
     if hasVertexDatas:
         for i in range(0, len(vertexDatas)):
             vert = vertexDatas[i]
-            v:FbxDouble3 = FbxDouble3(vert[0], vert[1], vert[2])
-            vertPosToIndexMap[v] = i
+            s = "%s,%s,%s" % (str(vert[0]), str(vert[1]), str(vert[2]))
+            vertPosToIndexMap[s] = i
 
 
     hasUseBoneIndexData = str(type(useBoneIndexData)) != "<class 'NoneType'>"
